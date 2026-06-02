@@ -1,0 +1,111 @@
+�밴����˳����� Sinmoniker ��Ŀ������ȫ����Ӣ�Ļظ���
+
+## ����
+��Ŀλ��: C:\Users\zhuowufeng\Desktop\my-website
+����ջ: Next.js 16 + TypeScript + Tailwind CSS 4 + PostgreSQL
+�����ļ�: app/login/page.js������ʽCanvasС�˵�¼ҳ����������
+          app/api/login/route.js
+          app/api/register/route.js
+          app/layout.tsx
+          app/page.tsx��Ĭ��ģ�壬Ҫ�滻��
+          app/globals.css
+          lib/db.js
+          models/User.js
+          .env.local������ DEEPSEEK_API_KEY �� DATABASE_URL��
+GitHub: https://github.com/zhuowufeng/my-website-v2 ��main��֧��
+
+## �û�����
+Landing Page �� /login �� /dashboard������Ӣ���������ɡ�չʾ�����
+
+## �����б�
+
+### TASK 1: ���� lib/deepseek.ts
+- ��װ DeepSeek API ����
+- ʹ�� process.env.DEEPSEEK_API_KEY
+- ���� https://api.deepseek.com/v1/chat/completions
+- ģ��: deepseek-chat, temperature: 0.8
+- ÿ������3��������ѡ��
+- ���ظ�ʽ: { names: [{ chineseName, nickname, meaningCn, meaningEn, pinyin }] }
+- Prompt ��Ӣ�ģ�Ҫ��AI����ϸ�JSON
+
+### TASK 2: ���� lib/sanitize.ts
+- sanitizeInput(name: string): ֻ����Ӣ����ĸ���ո����ַ���Ʋ��
+- sanitizeOutput(text: string): ת�� HTML �����ַ�
+- truncate(text: string, maxLen: number): �ض�
+
+### TASK 3: ���� models/NameHistory.js
+- ʹ�� lib/db.js �� query ����
+- createTable(): CREATE TABLE IF NOT EXISTS name_history
+- addRecord(userId, englishName, gender, results)
+- getHistory(userId, limit=20)
+
+### TASK 4: ���� app/api/generate-name/route.ts
+- POST ����
+- �������ȡ englishName, gender��Ĭ��'any'��
+- �ȼ���û���֤���� localStorage user �� header ��ȡ userId��
+- ��� free_usage_today �Ƿ�С��50
+- ��������
+- ���� DeepSeek
+- ���浽 name_history
+- ���� free_usage_today
+- ���ؽ��
+
+### TASK 5: ���� app/api/name-history/route.ts
+- GET ����
+- ���ص�ǰ�û�����ʷ��¼
+
+### TASK 6: ���� components/PronounceButton.tsx
+'use client'
+- ʹ�� Web Speech API (SpeechSynthesisUtterance)
+- ���� name������������ pinyin��ƴ��������
+- ����������ķ��� (lang='zh-CN')
+- ����ʱ��ʾ����ͼ��
+- ���Ž�������֧������ API ʱ��ʾ��ʾ
+
+### TASK 7: ���� components/NameCard.tsx
+'use client'
+- չʾһ��������������� PronunciationButton��
+- ��ƣ���ɫ��Ƭ����΢���й���߿�
+- ��ʾ������������ţ���ƴ����С�ţ���С�������壨��+Ӣ��
+- ���ɶ���
+
+### TASK 8: ���� app/dashboard/page.tsx
+'use client'
+- ��¼����ܷ��ʣ���� localStorage user��
+- ������ʾ�û�������˳���ť
+- ����� + �Ա�ѡ�� + ���ɰ�ť
+- ������״̬��skeleton��
+- �����Ƭչʾ����
+- ������ʷ��¼
+- ���λԤ�� div
+
+### TASK 9: ���� app/dashboard/layout.tsx
+- �򵥵� dashboard ����
+
+### TASK 10: �滻 app/page.tsx��Landing Page��
+- ȫӢ�ģ���������
+- ����⣺"Find Your Chinese Name"
+- ������˵������
+- ʾ������չʾ��Ӳ���뼸���ÿ��ģ�
+- CTA ��ť �� /login
+- ����ɫ+ů��ɫ+����ɫ����
+- ��Ӧʽ
+
+### TASK 11: �޸� app/layout.tsx
+- ���� title: "Sinmoniker - Find Your Chinese Name"
+- ���� metadata description
+
+### TASK 12: �޸� app/globals.css
+- �����Զ�����ʽ
+
+### TASK 13: �޸� models/User.js
+- ���� getUsageCount(userId) ����
+- �� createTable ������ name_history ���Ĵ���
+
+## ��Ҫ����
+- ��Ҫ�޸� app/login/page.js���������еĽ���ʽ��¼ҳ�棩
+- ��Ҫ�޸� app/api/login/route.js �� app/api/register/route.js
+- ���н���������Ӣ�ģ����ɵ� Chinese name ���⣩
+- ��ɫ������ɫ(#1a3a4a)��ů��ɫ(#c9753e)������ɫ(#f5f0e8)
+- ÿ���һ�����񣬻ظ� COMPLETE: [������]
+- ȫ����ɺ󣬲�Ҫ�˳��������ȴ���һ��ָ��
