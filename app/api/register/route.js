@@ -6,16 +6,16 @@ export async function POST(request) {
     await createTable();
     const { email, password } = await request.json();
     if (!email || !password) {
-      return Response.json({ error: '邮箱和密码不能为空' }, { status: 400 });
+      return Response.json({ error: 'Email and password are required' }, { status: 400 });
     }
     const existing = await findUserByEmail(email);
     if (existing) {
-      return Response.json({ error: '邮箱已被注册' }, { status: 409 });
+      return Response.json({ error: 'Email already registered' }, { status: 409 });
     }
     const newUser = await createUser(email, password);
-    return Response.json({ message: '注册成功', user: { id: newUser.id, email: newUser.email } }, { status: 201 });
+    return Response.json({ message: 'Registration successful', user: { id: newUser.id, email: newUser.email } }, { status: 201 });
   } catch (error) {
     console.error(error);
-    return Response.json({ error: '服务器内部错误' }, { status: 500 });
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

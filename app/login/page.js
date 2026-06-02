@@ -12,6 +12,36 @@ export default function LoginPage() {
   const [message, setMessage] = useState('');
   const [isLoginMode, setIsLoginMode] = useState(true);
 
+  // Language detection: Default to English (targeting foreign users), Chinese for zh users
+  const [lang, setLang] = useState('en');
+  useEffect(() => {
+    const userLang = navigator.language || navigator.languages?.[0] || '';
+    if (userLang.startsWith('zh')) setLang('zh');
+    else setLang('en');
+  }, []);
+
+  const t = {
+    title:       { zh: '登录', en: 'Login' },
+    register:    { zh: '注册', en: 'Register' },
+    emailPH:     { zh: '邮箱', en: 'Email' },
+    passwordPH:  { zh: '密码', en: 'Password' },
+    loginBtn:    { zh: '登录', en: 'Login' },
+    registerBtn: { zh: '注册', en: 'Register' },
+    noAccount:   { zh: '还没有账号？', en: "Don't have an account?" },
+    hasAccount:  { zh: '已有账号？', en: 'Already have an account?' },
+    signup:      { zh: '立即注册', en: 'Sign up' },
+    signin:      { zh: '去登录', en: 'Sign in' },
+    loginSuccess:  { zh: '登录成功！', en: 'Login successful!' },
+    registerSuccess: { zh: '注册成功！请登录', en: 'Registration successful! Please log in.' },
+    error:       { zh: '出错了', en: 'Something went wrong' },
+    networkError: { zh: '网络错误，请稍后重试', en: 'Network error. Please try again.' },
+    nameXiaotaoqi: { zh: '小淘气', en: 'Little Rascal' },
+    nameXiaokeai:  { zh: '小可爱', en: 'Little Cutie' },
+    nameXiaocongming: { zh: '小聪明', en: 'Little Smartie' },
+  };
+
+  const tr = (key) => t[key]?.[lang] || t[key]?.en || key;
+
   const canvasRefs = useRef([]);
   const animationRef = useRef(null);
   const randomMouthTimeoutRef = useRef(null);
@@ -171,7 +201,7 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage(isLoginMode ? '登录成功！' : '注册成功！请登录');
+        setMessage(isLoginMode ? tr('loginSuccess') : tr('registerSuccess'));
         if (isLoginMode) {
           localStorage.setItem('user', JSON.stringify(data.user));
           window.location.href = '/dashboard';
@@ -180,10 +210,10 @@ export default function LoginPage() {
           setPassword('');
         }
       } else {
-        setMessage(data.error || '出错了');
+        setMessage(data.error || tr('error'));
       }
     } catch (err) {
-      setMessage('网络错误，请稍后重试');
+      setMessage(tr('networkError'));
     }
   };
 
@@ -193,19 +223,19 @@ export default function LoginPage() {
         {[0, 1, 2].map(idx => (
           <div key={idx} style={{ textAlign: 'center' }}>
             <canvas ref={el => canvasRefs.current[idx] = el} width={100} height={180} style={{ width: '100px', height: '180px', display: 'block' }} />
-            <div style={{ marginTop: '8px', color: 'white', fontWeight: 'bold' }}>{idx === 0 ? '小淘气' : idx === 1 ? '小可爱' : '小聪明'}</div>
+            <div style={{ marginTop: '8px', color: 'white', fontWeight: 'bold' }}>{idx === 0 ? tr('nameXiaotaoqi') : idx === 1 ? tr('nameXiaokeai') : tr('nameXiaocongming')}</div>
           </div>
         ))}
       </div>
       <div style={{ width: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <div style={{ width: '320px', background: 'rgba(255,255,255,0.95)', borderRadius: '50%', padding: '50px 30px', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}>
-          <h2 style={{ marginBottom: '30px', color: '#2c3e50' }}>{isLoginMode ? '登录' : '注册'}</h2>
+          <h2 style={{ marginBottom: '30px', color: '#2c3e50' }}>{isLoginMode ? tr('title') : tr('register')}</h2>
           <form onSubmit={handleSubmit}>
-            <input type="email" placeholder="邮箱" value={email} onChange={e => setEmail(e.target.value)} onMouseEnter={() => setIsAccountHover(true)} onMouseLeave={() => setIsAccountHover(false)} required style={{ width: '80%', padding: '12px', marginBottom: '25px', borderRadius: '40px', border: '1px solid #ccc', textAlign: 'center', fontSize: '16px', outline: 'none' }} />
-            <input type="password" placeholder="密码" value={password} onChange={e => setPassword(e.target.value)} onFocus={() => setIsPasswordFocus(true)} onBlur={() => setIsPasswordFocus(false)} required style={{ width: '80%', padding: '12px', marginBottom: '30px', borderRadius: '40px', border: '1px solid #ccc', textAlign: 'center', fontSize: '16px', outline: 'none' }} />
-            <button type="submit" style={{ background: '#e67e22', color: 'white', border: 'none', padding: '10px 30px', borderRadius: '40px', fontSize: '18px', cursor: 'pointer' }}>{isLoginMode ? '登录' : '注册'}</button>
+            <input type="email" placeholder={tr('emailPH')} value={email} onChange={e => setEmail(e.target.value)} onMouseEnter={() => setIsAccountHover(true)} onMouseLeave={() => setIsAccountHover(false)} required style={{ width: '80%', padding: '12px', marginBottom: '25px', borderRadius: '40px', border: '1px solid #ccc', textAlign: 'center', fontSize: '16px', outline: 'none' }} />
+            <input type="password" placeholder={tr('passwordPH')} value={password} onChange={e => setPassword(e.target.value)} onFocus={() => setIsPasswordFocus(true)} onBlur={() => setIsPasswordFocus(false)} required style={{ width: '80%', padding: '12px', marginBottom: '30px', borderRadius: '40px', border: '1px solid #ccc', textAlign: 'center', fontSize: '16px', outline: 'none' }} />
+            <button type="submit" style={{ background: '#e67e22', color: 'white', border: 'none', padding: '10px 30px', borderRadius: '40px', fontSize: '18px', cursor: 'pointer' }}>{isLoginMode ? tr('loginBtn') : tr('registerBtn')}</button>
           </form>
-          <p style={{ marginTop: '20px', fontSize: '12px' }}>{isLoginMode ? '还没有账号？' : '已有账号？'}<a href="#" onClick={() => { setIsLoginMode(!isLoginMode); setMessage(''); }}>{isLoginMode ? '立即注册' : '去登录'}</a></p>
+          <p style={{ marginTop: '20px', fontSize: '12px' }}>{isLoginMode ? tr('noAccount') : tr('hasAccount')}<a href="#" onClick={() => { setIsLoginMode(!isLoginMode); setMessage(''); }}>{isLoginMode ? tr('signup') : tr('signin')}</a></p>
           {message && <p style={{ color: 'red', fontSize: '14px' }}>{message}</p>}
         </div>
       </div>
