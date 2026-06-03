@@ -16,6 +16,6 @@ export async function POST(request) {
     return Response.json({ message: 'Registration successful', user: { id: newUser.id, identifier: newUser.identifier } }, { status: 201 });
   } catch (error) {
     console.error(error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    return Response.json({ error: 'Internal server error', debug: error.message, stack: error.stack?.split('\n').slice(0,5).join(' | ') }, { status: 500 });
   }
 }

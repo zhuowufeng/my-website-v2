@@ -17,6 +17,6 @@ export async function POST(request) {
     return Response.json({ message: 'Login successful', user: { id: user.id, identifier: user.identifier, free_usage_today: user.free_usage_today } });
   } catch (error) {
     console.error(error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    return Response.json({ error: 'Internal server error', debug: error.message }, { status: 500 });
   }
 }
