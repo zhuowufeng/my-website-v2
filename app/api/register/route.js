@@ -1,19 +1,19 @@
 // app/api/register/route.js
-import { createTable, createUser, findUserByEmail } from '@/models/User.js';
+import { createTable, createUser, findUserByIdentifier } from '@/models/User.js';
 
 export async function POST(request) {
   try {
     await createTable();
-    const { email, password } = await request.json();
-    if (!email || !password) {
-      return Response.json({ error: 'Email and password are required' }, { status: 400 });
+    const { identifier, password } = await request.json();
+    if (!identifier || !password) {
+      return Response.json({ error: 'Identifier and password are required' }, { status: 400 });
     }
-    const existing = await findUserByEmail(email);
+    const existing = await findUserByIdentifier(identifier);
     if (existing) {
-      return Response.json({ error: 'Email already registered' }, { status: 409 });
+      return Response.json({ error: 'Account already registered' }, { status: 409 });
     }
-    const newUser = await createUser(email, password);
-    return Response.json({ message: 'Registration successful', user: { id: newUser.id, email: newUser.email } }, { status: 201 });
+    const newUser = await createUser(identifier, password);
+    return Response.json({ message: 'Registration successful', user: { id: newUser.id, identifier: newUser.identifier } }, { status: 201 });
   } catch (error) {
     console.error(error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });

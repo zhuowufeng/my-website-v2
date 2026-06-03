@@ -7,7 +7,7 @@ export default function LoginPage() {
   const [isAccountHover, setIsAccountHover] = useState(false);
   const [isPasswordFocus, setIsPasswordFocus] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -23,7 +23,7 @@ export default function LoginPage() {
   const t = {
     title:       { zh: '登录', en: 'Login' },
     register:    { zh: '注册', en: 'Register' },
-    emailPH:     { zh: '邮箱', en: 'Email' },
+    emailPH:     { zh: '邮箱/手机号/用户名', en: 'Email / Phone / Username' },
     passwordPH:  { zh: '密码', en: 'Password' },
     loginBtn:    { zh: '登录', en: 'Login' },
     registerBtn: { zh: '注册', en: 'Register' },
@@ -109,13 +109,30 @@ export default function LoginPage() {
     ctx.fill();
 
     let pupilSize = 6 * pupilScale;
+    // Pre-calculate the canvas screen position once per frame for all eyes
+    // This avoids multiple getBoundingClientRect calls for left/right eye of same canvas
     const getPupilPos = (eyeX, eyeY) => {
       if (isPasswordFocus) return { x: eyeX - 12, y: eyeY };
-      let dx = mousePos.x - eyeX;
-      let dy = mousePos.y - eyeY;
-      const distance = Math.min(8, Math.hypot(dx, dy) / 10);
-      const angle = Math.atan2(dy, dx);
-      return { x: eyeX + Math.cos(angle) * distance, y: eyeY + Math.sin(angle) * distance };
+      // Get the canvas element from the refs
+      let rect = null;
+      for (let i = 0; i < canvasRefs.current.length; i++) {
+        const c = canvasRefs.current[i];
+        if (c && c.getContext && c.getContext('2d') === ctx) {
+          rect = c.getBoundingClientRect();
+          break;
+        }
+      }
+      if (!rect && canvasRefs.current[0]) rect = canvasRefs.current[0].getBoundingClientRect();
+      // Convert canvas-local eye positions to screen coordinates
+      const screenEyeX = (rect?.left || 0) + eyeX;
+      const screenEyeY = (rect?.top || 0) + eyeY;
+      let dx = mousePos.x - screenEyeX;
+      let dy = mousePos.y - screenEyeY;
+      const dist = Math.hypot(dx, dy);
+      const maxPupilMove = 5; // max pixels the pupil can shift within the eye
+      if (dist === 0) return { x: eyeX, y: eyeY };
+      const moveDist = Math.min(maxPupilMove, dist * 0.12);
+      return { x: eyeX + (dx / dist) * moveDist, y: eyeY + (dy / dist) * moveDist };
     };
 
     const leftPupil = getPupilPos(leftEyeX, eyeY);
@@ -197,7 +214,7 @@ export default function LoginPage() {
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ identifier, password }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -231,7 +248,7 @@ export default function LoginPage() {
         <div style={{ width: '320px', background: 'rgba(255,255,255,0.95)', borderRadius: '50%', padding: '50px 30px', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}>
           <h2 style={{ marginBottom: '30px', color: '#2c3e50' }}>{isLoginMode ? tr('title') : tr('register')}</h2>
           <form onSubmit={handleSubmit}>
-            <input type="email" placeholder={tr('emailPH')} value={email} onChange={e => setEmail(e.target.value)} onMouseEnter={() => setIsAccountHover(true)} onMouseLeave={() => setIsAccountHover(false)} required style={{ width: '80%', padding: '12px', marginBottom: '25px', borderRadius: '40px', border: '1px solid #ccc', textAlign: 'center', fontSize: '16px', outline: 'none' }} />
+            <input type="text" placeholder={tr('emailPH')} value={identifier} onChange={e => setIdentifier(e.target.value)} onMouseEnter={() => setIsAccountHover(true)} onMouseLeave={() => setIsAccountHover(false)} required style={{ width: '80%', padding: '12px', marginBottom: '25px', borderRadius: '40px', border: '1px solid #ccc', textAlign: 'center', fontSize: '16px', outline: 'none' }} />
             <input type="password" placeholder={tr('passwordPH')} value={password} onChange={e => setPassword(e.target.value)} onFocus={() => setIsPasswordFocus(true)} onBlur={() => setIsPasswordFocus(false)} required style={{ width: '80%', padding: '12px', marginBottom: '30px', borderRadius: '40px', border: '1px solid #ccc', textAlign: 'center', fontSize: '16px', outline: 'none' }} />
             <button type="submit" style={{ background: '#e67e22', color: 'white', border: 'none', padding: '10px 30px', borderRadius: '40px', fontSize: '18px', cursor: 'pointer' }}>{isLoginMode ? tr('loginBtn') : tr('registerBtn')}</button>
           </form>
