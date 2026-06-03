@@ -79,7 +79,7 @@ export default function LoginPage() {
     return () => window.removeEventListener('mousemove', onMouseMove);
   }, []);
 
-  const drawCharacter = (ctx, width, height, pupilScale, mouthType) => {
+  const drawCharacter = (ctx, canvas, width, height, pupilScale, mouthType) => {
     const centerX = width / 2;
     const bodyY = height * 0.25;
     const bodyWidth = 60;
@@ -109,29 +109,19 @@ export default function LoginPage() {
     ctx.fill();
 
     let pupilSize = 6 * pupilScale;
-    // Pre-calculate the canvas screen position once per frame for all eyes
-    // This avoids multiple getBoundingClientRect calls for left/right eye of same canvas
+    // Get this canvas's actual position on screen for eye tracking
     const getPupilPos = (eyeX, eyeY) => {
       if (isPasswordFocus) return { x: eyeX - 12, y: eyeY };
-      // Get the canvas element from the refs
-      let rect = null;
-      for (let i = 0; i < canvasRefs.current.length; i++) {
-        const c = canvasRefs.current[i];
-        if (c && c.getContext && c.getContext('2d') === ctx) {
-          rect = c.getBoundingClientRect();
-          break;
-        }
-      }
-      if (!rect && canvasRefs.current[0]) rect = canvasRefs.current[0].getBoundingClientRect();
-      // Convert canvas-local eye positions to screen coordinates
-      const screenEyeX = (rect?.left || 0) + eyeX;
-      const screenEyeY = (rect?.top || 0) + eyeY;
+      const rect = canvas.getBoundingClientRect();
+      // Convert canvas-local eye coordinates to screen coordinates
+      const screenEyeX = rect.left + rect.width / 2 + (eyeX - canvas.width / 2);
+      const screenEyeY = rect.top + rect.height / 2 + (eyeY - canvas.height / 2);
       let dx = mousePos.x - screenEyeX;
       let dy = mousePos.y - screenEyeY;
       const dist = Math.hypot(dx, dy);
-      const maxPupilMove = 5; // max pixels the pupil can shift within the eye
-      if (dist === 0) return { x: eyeX, y: eyeY };
-      const moveDist = Math.min(maxPupilMove, dist * 0.12);
+      const maxPupilMove = 5;
+      if (dist < 1) return { x: eyeX, y: eyeY };
+      const moveDist = Math.min(maxPupilMove, dist * 0.08);
       return { x: eyeX + (dx / dist) * moveDist, y: eyeY + (dy / dist) * moveDist };
     };
 
@@ -198,7 +188,7 @@ export default function LoginPage() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const pupilScale = isAccountHover ? 1.6 : 1;
         const mouthShape = getCurrentMouthShape(i);
-        drawCharacter(ctx, canvas.width, canvas.height, pupilScale, mouthShape);
+        drawCharacter(ctx, canvas, canvas.width, canvas.height, pupilScale, mouthShape);
       }
       animationRef.current = requestAnimationFrame(animate);
     };
