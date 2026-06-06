@@ -1,7 +1,7 @@
 'use client';
 
-// 墨言文章助手 — AI Writing Tool
-import { useState, useRef, useEffect } from 'react';
+// 墨言文章助手 — AI Writing Tool (v2 with article history)
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 
 type ArticleType = 'blog' | 'social' | 'seo' | 'product';
@@ -20,9 +20,17 @@ const TYPE_PLACEHOLDERS: Record<ArticleType, string> = {
   product: '例如：一款智能水杯的核心功能',
 };
 
-// 格式化JSON文本为可读HTML
+interface ArticleRecord {
+  id: number;
+  topic: string;
+  article_type: string;
+  title: string | null;
+  word_count: number;
+  created_at: string;
+  content?: string;
+}
+
 function formatOutput(text: string): string {
-  // Remove JSON markers if present
   let clean = text.trim();
   if (clean.startsWith('```')) {
     clean = clean.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```$/, '');
@@ -30,7 +38,6 @@ function formatOutput(text: string): string {
   return clean;
 }
 
-// 尝试解析并渲染JSON为美观的卡片格式
 function renderStructuredContent(text: string): string {
   try {
     const data = JSON.parse(text);
@@ -39,34 +46,27 @@ function renderStructuredContent(text: string): string {
     if (data.title) {
       html += `<h2 class="text-2xl font-bold text-teal-900 mb-3">${escapeHtml(data.title)}</h2>`;
     }
-
     if (data.alternateTitles?.length) {
       html += `<div class="mb-4 text-sm text-gray-500">备选标题：${data.alternateTitles.map((t: string) => escapeHtml(t)).join(' ｜ ')}</div>`;
     }
-
     if (data.tagline) {
       html += `<p class="text-lg text-amber-700 font-medium mb-4">${escapeHtml(data.tagline)}</p>`;
     }
-
     if (data.hook) {
       html += `<p class="text-lg font-medium text-gray-800 mb-3">${escapeHtml(data.hook)}</p>`;
     }
-
     if (data.summary) {
       html += `<div class="bg-teal-50 border-l-4 border-teal-500 p-3 mb-4 text-sm text-gray-700">📌 ${escapeHtml(data.summary)}</div>`;
     }
-
     if (data.metaDescription) {
       html += `<div class="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4 text-sm text-gray-700">🔎 Meta描述：${escapeHtml(data.metaDescription)}</div>`;
     }
-
     if (data.sections?.length) {
       for (const section of data.sections) {
         html += `<h3 class="text-xl font-semibold text-teal-800 mt-5 mb-2">${escapeHtml(section.heading)}</h3>`;
         html += `<p class="text-gray-700 leading-relaxed mb-3">${escapeHtml(section.content)}</p>`;
       }
     }
-
     if (data.features?.length) {
       html += `<div class="grid gap-3 my-4">`;
       for (const f of data.features) {
@@ -77,50 +77,68 @@ function renderStructuredContent(text: string): string {
       }
       html += `</div>`;
     }
-
     if (data.benefits?.length) {
       html += `<h3 class="text-lg font-semibold text-gray-800 mt-4 mb-2">✨ 核心优势</h3><ul class="list-disc pl-5 space-y-1 text-gray-700 mb-4">`;
       for (const b of data.benefits) html += `<li>${escapeHtml(b)}</li>`;
       html += `</ul>`;
     }
-
     if (data.points?.length) {
       for (const p of data.points) {
         html += `<p class="text-gray-700 leading-relaxed mb-2">${escapeHtml(p)}</p>`;
       }
     }
-
     if (data.useCases?.length) {
       html += `<h3 class="text-lg font-semibold text-gray-800 mt-4 mb-2">🎯 适用场景</h3><ul class="list-disc pl-5 space-y-1 text-gray-700 mb-4">`;
       for (const u of data.useCases) html += `<li>${escapeHtml(u)}</li>`;
       html += `</ul>`;
     }
-
     if (data.conclusion) {
       html += `<div class="border-t pt-3 mt-4 text-gray-700 italic">${escapeHtml(data.conclusion)}</div>`;
     }
-
     if (data.cta) {
       html += `<div class="bg-amber-50 border border-amber-200 p-3 rounded-lg mt-4 text-center font-medium text-amber-800">${escapeHtml(data.cta)}</div>`;
     }
-
     if (data.hashtags?.length) {
       html += `<div class="mt-4 text-blue-600 text-sm">${data.hashtags.map((t: string) => escapeHtml(t)).join(' ')}</div>`;
     }
-
     if (data.keywords?.length) {
       html += `<div class="mt-2 text-xs text-gray-400">关键词：${data.keywords.join(', ')}</div>`;
     }
 
     return html || `<pre class="whitespace-pre-wrap text-sm text-gray-700">${escapeHtml(text)}</pre>`;
   } catch {
-    // Not valid JSON, render as plain text
     return `<pre class="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed">${escapeHtml(text)}</pre>`;
   }
 }
 
 function escapeHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+const DAILY_FREE_LIMIT = 10;
+
+function getDailyUsage(): number {
+  if (typeof window === 'undefined') return 0;
+  const today = new Date().toISOString().slice(0, 10);
+  const val = parseInt(localStorage.getItem(`writing_usage_${today}`) || '0', 10);
+  return val;
+}
+
+function incrementDailyUsage(): number {
+  if (typeof window === 'undefined') return 0;
+  const today = new Date().toISOString().slice(0, 10);
+  const val = parseInt(localStorage.getItem(`writing_usage_${today}`) || '0', 10) + 1;
+  localStorage.setItem(`writing_usage_${today}`, val.toString());
+  return val;
+}
+
+function getSessionId(): string {
+  let sid = localStorage.getItem('writing_session_id');
+  if (!sid) {
+    sid = 'anon_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    localStorage.setItem('writing_session_id', sid);
+  }
+  return sid;
 }
 
 export default function WritingToolPage() {
@@ -130,23 +148,95 @@ export default function WritingToolPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [history, setHistory] = useState<ArticleRecord[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [viewingArticle, setViewingArticle] = useState<ArticleRecord | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [savedId, setSavedId] = useState<number | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [dailyUsage, setDailyUsage] = useState(0);
   const outputRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Cleanup on unmount
+  // Load history on mount
   useEffect(() => {
+    loadHistory();
+    setDailyUsage(getDailyUsage());
     return () => {
       abortRef.current?.abort();
     };
   }, []);
 
+  const loadHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    try {
+      const sid = getSessionId();
+      const res = await fetch(`/api/articles?userId=1&limit=20`);
+      if (res.ok) {
+        const data = await res.json();
+        setHistory(data.articles || []);
+      }
+    } catch {
+      // Silently fail if no DB
+    }
+    setHistoryLoading(false);
+  }, []);
+
+  const saveArticle = useCallback(async (content: string) => {
+    if (!content.trim()) return;
+    setSaveStatus('saving');
+    try {
+      // Extract title from content
+      let title = '';
+      try {
+        const parsed = JSON.parse(content);
+        title = parsed.title || parsed.tagline || '';
+      } catch {
+        title = topic;
+      }
+
+      const res = await fetch('/api/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: 1,
+          topic: topic.trim(),
+          articleType,
+          title: title.substring(0, 300),
+          content,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSavedId(data.article.id);
+        setSaveStatus('saved');
+        loadHistory();
+      } else {
+        setSaveStatus('error');
+      }
+    } catch {
+      setSaveStatus('error');
+    }
+  }, [topic, articleType, loadHistory]);
+
   async function handleGenerate() {
     if (!topic.trim() || isGenerating) return;
+
+    // Daily usage check
+    const usage = getDailyUsage();
+    if (usage >= DAILY_FREE_LIMIT) {
+      setError(`今天已免费使用 ${usage} 次，已达到每日上限。升级 Pro 可无限使用`);
+      return;
+    }
 
     setOutput('');
     setError('');
     setIsGenerating(true);
     setCopied(false);
+    setSavedId(null);
+    setSaveStatus('idle');
+    setViewingArticle(null);
 
     try {
       const response = await fetch('/api/generate-article', {
@@ -163,6 +253,7 @@ export default function WritingToolPage() {
       const reader = response.body!.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      let fullText = '';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -175,7 +266,6 @@ export default function WritingToolPage() {
         for (const line of lines) {
           const trimmed = line.trim();
           if (!trimmed.startsWith('data: ')) continue;
-
           try {
             const data = JSON.parse(trimmed.slice(6));
             if (data.done) break;
@@ -184,8 +274,8 @@ export default function WritingToolPage() {
               break;
             }
             if (data.text) {
+              fullText += data.text;
               setOutput(prev => prev + data.text);
-              // Auto-scroll
               if (outputRef.current) {
                 outputRef.current.scrollTop = outputRef.current.scrollHeight;
               }
@@ -194,6 +284,13 @@ export default function WritingToolPage() {
             // skip
           }
         }
+      }
+
+      // Auto-save after generation
+      if (fullText.trim()) {
+        await saveArticle(fullText);
+        const newUsage = incrementDailyUsage();
+        setDailyUsage(newUsage);
       }
     } catch (err: any) {
       if (err.name !== 'AbortError') {
@@ -212,9 +309,35 @@ export default function WritingToolPage() {
     });
   }
 
-  function handleRegenerate() {
-    handleGenerate();
-  }
+  const viewHistoryArticle = async (article: ArticleRecord) => {
+    try {
+      const res = await fetch(`/api/articles?id=${article.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setViewingArticle(data.article);
+        setOutput(data.article.content || '');
+        setTopic(data.article.topic);
+        setArticleType(data.article.article_type as ArticleType);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  const deleteHistoryArticle = async (id: number) => {
+    try {
+      const res = await fetch(`/api/articles?id=${id}&userId=1`, { method: 'DELETE' });
+      if (res.ok) {
+        setHistory(prev => prev.filter(a => a.id !== id));
+        if (viewingArticle?.id === id) {
+          setViewingArticle(null);
+          setOutput('');
+        }
+      }
+    } catch {
+      // ignore
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col">
@@ -225,6 +348,21 @@ export default function WritingToolPage() {
           <span className="text-teal-300 text-xs hidden sm:inline">AI文章助手</span>
         </Link>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className={`text-sm px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              showHistory
+                ? 'bg-teal-700 text-white'
+                : 'text-teal-200 hover:text-white hover:bg-teal-800/50'
+            }`}
+          >
+            📚 历史记录
+            {history.length > 0 && !showHistory && (
+              <span className="ml-1 text-xs bg-amber-500 text-white px-1.5 py-0.5 rounded-full">
+                {history.length}
+              </span>
+            )}
+          </button>
           <Link
             href="/"
             className="text-teal-200 hover:text-white text-sm transition-colors"
@@ -234,147 +372,266 @@ export default function WritingToolPage() {
         </div>
       </nav>
 
-      {/* Main Content */}
-      <main className="flex-1 bg-gradient-to-b from-cream via-cream to-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold text-teal-900 mb-2">
-              AI文章助手
-            </h1>
-            <p className="text-gray-600 text-sm sm:text-base">
-              输入主题，AI帮你写文章。博客、小红书、SEO、产品介绍，一键生成
-            </p>
-          </div>
+      <div className="flex-1 flex">
+        {/* History Sidebar */}
+        {showHistory && (
+          <aside className="w-72 sm:w-80 bg-white border-r border-gray-200 flex flex-col shrink-0">
+            <div className="px-4 py-3 border-b border-gray-100">
+              <h2 className="text-sm font-bold text-gray-800">📚 历史文章</h2>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {history.length > 0 ? `共 ${history.length} 篇` : '还没有文章'}
+              </p>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {historyLoading && (
+                <div className="p-4 text-center text-sm text-gray-400">加载中...</div>
+              )}
+              {!historyLoading && history.length === 0 && (
+                <div className="p-6 text-center text-sm text-gray-400">
+                  生成文章后自动保存在这里 📝
+                </div>
+              )}
+              {history.map((article) => (
+                <div
+                  key={article.id}
+                  className={`px-4 py-3 border-b border-gray-50 hover:bg-teal-50/50 cursor-pointer transition-colors group ${
+                    viewingArticle?.id === article.id ? 'bg-teal-50 border-l-2 border-l-teal-600' : ''
+                  }`}
+                  onClick={() => {
+                    setViewingArticle(article);
+                    viewHistoryArticle(article);
+                  }}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800 truncate">
+                        {article.title || article.topic}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {TYPE_LABELS[article.article_type as ArticleType] || article.article_type}
+                        {' · '}
+                        {article.word_count > 0 ? `${article.word_count}字` : ''}
+                        {' · '}
+                        {new Date(article.created_at).toLocaleDateString('zh-CN', {
+                          month: 'short', day: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteHistoryArticle(article.id);
+                      }}
+                      className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all text-xs p-1 cursor-pointer"
+                      title="删除"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </aside>
+        )}
 
-          {/* Input Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-            {/* Topic Input */}
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              输入文章主题
-            </label>
-            <textarea
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder={TYPE_PLACEHOLDERS[articleType]}
-              className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition resize-none"
-              rows={2}
-              maxLength={500}
-              disabled={isGenerating}
-            />
-
-            {/* Article Type Selector */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                文章类型
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {(Object.entries(TYPE_LABELS) as [ArticleType, string][]).map(([key, label]) => (
-                  <button
-                    key={key}
-                    onClick={() => setArticleType(key)}
-                    disabled={isGenerating}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      articleType === key
-                        ? 'bg-teal-600 text-white shadow-sm'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    } disabled:opacity-50`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+        {/* Main Content */}
+        <main className="flex-1 bg-gradient-to-b from-cream via-cream to-white min-w-0">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h1 className="text-3xl sm:text-4xl font-bold text-teal-900 mb-2">
+                AI文章助手
+              </h1>
+              <p className="text-gray-600 text-sm sm:text-base">
+                输入主题，AI帮你写文章。博客、小红书、SEO、产品介绍，一键生成
+              </p>
             </div>
 
-            {/* Generate Button */}
-            <button
-              onClick={handleGenerate}
-              disabled={!topic.trim() || isGenerating}
-              className={`mt-4 w-full py-3 rounded-xl text-white font-medium text-base transition-all ${
-                !topic.trim() || isGenerating
-                  ? 'bg-gray-300 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-teal-600 to-amber-600 hover:from-teal-700 hover:to-amber-700 active:scale-[0.98] shadow-md'
-              }`}
-            >
-              {isGenerating ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  AI生成中...
-                </span>
-              ) : (
-                '🚀 生成文章'
-              )}
-            </button>
+            {/* Input Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                输入文章主题
+              </label>
+              <textarea
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder={TYPE_PLACEHOLDERS[articleType]}
+                className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition resize-none"
+                rows={2}
+                maxLength={500}
+                disabled={isGenerating}
+              />
 
-            {/* Error */}
-            {error && (
-              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-                {error}
-              </div>
-            )}
-          </div>
-
-          {/* Output Section */}
-          {output && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="flex items-center justify-between px-4 sm:px-6 py-3 bg-gray-50 border-b border-gray-200">
-                <h2 className="text-sm font-medium text-gray-700">生成结果</h2>
-                <div className="flex gap-2">
-                  {!isGenerating && (
-                    <>
-                      <button
-                        onClick={handleRegenerate}
-                        className="px-3 py-1.5 text-xs font-medium bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
-                      >
-                        🔄 重新生成
-                      </button>
-                      <button
-                        onClick={handleCopy}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                          copied
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-200 hover:bg-gray-300'
-                        }`}
-                      >
-                        {copied ? '✅ 已复制' : '📋 复制'}
-                      </button>
-                    </>
-                  )}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  文章类型
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {(Object.entries(TYPE_LABELS) as [ArticleType, string][]).map(([key, label]) => (
+                    <button
+                      key={key}
+                      onClick={() => setArticleType(key)}
+                      disabled={isGenerating}
+                      className={`flex-1 min-w-[120px] px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                        articleType === key
+                          ? 'bg-teal-600 text-white shadow-sm'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      } disabled:opacity-50`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
-              <div
-                ref={outputRef}
-                className="p-4 sm:p-6 max-h-[600px] overflow-y-auto"
+
+              <button
+                onClick={handleGenerate}
+                disabled={!topic.trim() || isGenerating}
+                className={`mt-4 w-full py-3 rounded-xl text-white font-medium text-base transition-all cursor-pointer ${
+                  !topic.trim() || isGenerating
+                    ? 'bg-gray-300 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-teal-600 to-amber-600 hover:from-teal-700 hover:to-amber-700 active:scale-[0.98] shadow-md'
+                }`}
               >
+                {isGenerating ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    AI生成中...
+                  </span>
+                ) : (
+                  '🚀 生成文章'
+                )}
+              </button>
+
+              {/* Save Status */}
+              {saveStatus === 'saving' && (
+                <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-600 text-center">
+                  💾 正在保存...
+                </div>
+              )}
+              {saveStatus === 'saved' && (
+                <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700 text-center">
+                  ✅ 已保存到历史记录
+                </div>
+              )}
+
+              {error && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                  {error}
+                </div>
+              )}
+            </div>
+
+            {/* Output Section */}
+            {output && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3 bg-gray-50 border-b border-gray-200">
+                  <h2 className="text-sm font-medium text-gray-700">
+                    {viewingArticle ? '📂 历史文章' : '✨ 生成结果'}
+                  </h2>
+                  <div className="flex gap-2">
+                    {!isGenerating && (
+                      <>
+                        <button
+                          onClick={() => {
+                            if (viewingArticle) {
+                              setViewingArticle(null);
+                              setOutput('');
+                              setTopic('');
+                            } else {
+                              handleGenerate();
+                            }
+                          }}
+                          className="px-3 py-1.5 text-xs font-medium bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors cursor-pointer"
+                        >
+                          {viewingArticle ? '← 写新文章' : '🔄 重新生成'}
+                        </button>
+                        <button
+                          onClick={handleCopy}
+                          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
+                            copied
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-gray-200 hover:bg-gray-300'
+                          }`}
+                        >
+                          {copied ? '✅ 已复制' : '📋 复制'}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
                 <div
-                  className="prose prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{
-                    __html: isGenerating
-                      ? renderStructuredContent(output) + '<div class="inline-block w-2 h-5 bg-teal-600 animate-pulse ml-1"></div>'
-                      : renderStructuredContent(output),
-                  }}
-                />
+                  ref={outputRef}
+                  className="p-4 sm:p-6 max-h-[600px] overflow-y-auto"
+                >
+                  <div
+                    className="prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html: isGenerating
+                        ? renderStructuredContent(output) + '<div class="inline-block w-2 h-5 bg-teal-600 animate-pulse ml-1"></div>'
+                        : renderStructuredContent(output),
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Tips */}
+            {!output && !isGenerating && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+                <strong>💡 使用小贴士：</strong>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  <li>输入越具体，生成的文章越精准</li>
+                  <li>试试不同的文章类型，找到最适合你的格式</li>
+                  <li>满意就点「重新生成」，AI每次输出不同</li>
+                  <li>生成的文字自动保存，随时在历史记录查看</li>
+                </ul>
+              </div>
+            )}
+
+            {/* Ad */}
+            <div className="mt-6 p-3 bg-gradient-to-r from-gray-50 to-amber-50 border border-gray-200 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">—— 推广 ——</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    📢 需要高质量外链提升SEO排名？{' '}
+                    <a
+                      href="https://www.google.com/search?q=SEO+backlink+service"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-teal-600 hover:text-teal-800 underline font-medium"
+                    >
+                      点击了解
+                    </a>
+                  </p>
+                </div>
+                <span className="text-xs text-gray-300 ml-2">广告</span>
               </div>
             </div>
-          )}
 
-          {/* Tips */}
-          {!output && !isGenerating && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-              <strong>💡 使用小贴士：</strong>
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>输入越具体，生成的文章越精准</li>
-                <li>试试不同的文章类型，找到最适合你的格式</li>
-                <li>不满意就点「重新生成」，AI每次输出不同</li>
-                <li>生成的文字可以直接复制使用</li>
-              </ul>
+            {/* Usage + Pro upsell */}
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+                <p className="text-xs text-gray-400">今日免费额度</p>
+                <p className="text-2xl font-bold text-teal-700 mt-1">
+                  {Math.max(0, DAILY_FREE_LIMIT - dailyUsage)}
+                  <span className="text-sm text-gray-400 font-normal">/{DAILY_FREE_LIMIT}</span>
+                </p>
+                <p className="text-xs text-gray-500 mt-1">每日重置</p>
+              </div>
+              <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl p-4 text-center text-white shadow-sm">
+                <p className="text-xs opacity-90">🚀 墨言 Pro</p>
+                <p className="text-sm font-bold mt-1">无限使用 · 更高质量</p>
+                <p className="text-xs opacity-80 mt-1">即将上线</p>
+              </div>
             </div>
-          )}
-        </div>
-      </main>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

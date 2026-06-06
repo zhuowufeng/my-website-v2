@@ -12,10 +12,36 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://sinmoniker.com';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: "Sinmoniker - Find Your Chinese Name",
   description:
     "Discover a beautiful Chinese name that reflects your personality. AI-powered name generator with meanings, pronunciation, and cute nicknames.",
+  keywords: ["Chinese name generator", "中文名生成", "AI name generator", "Chinese name meaning"],
+  openGraph: {
+    title: "Sinmoniker - Find Your Chinese Name",
+    description:
+      "Discover a beautiful Chinese name that reflects your personality. AI-powered name generator with meanings, pronunciation, and cute nicknames.",
+    type: "website",
+    locale: "en_US",
+    siteName: "Sinmoniker",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Sinmoniker - Chinese Name Generator",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sinmoniker - Find Your Chinese Name",
+    description:
+      "Discover a beautiful Chinese name that reflects your personality. AI-powered name generator with meanings, pronunciation, and cute nicknames.",
+  },
 };
 
 export default function RootLayout({

@@ -159,9 +159,9 @@ export default function DashboardPage() {
 
         {/* Loading state */}
         {isLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="flex flex-wrap gap-4 mb-8">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl border border-teal-100 p-5 animate-pulse">
+              <div key={i} className="flex-1 min-w-[280px] bg-white rounded-xl border border-teal-100 p-5 animate-pulse">
                 <div className="h-1.5 bg-gradient-to-r from-teal-600 via-amber-500 to-teal-600 rounded-t-xl -mx-5 -mt-5 mb-4" />
                 <div className="h-3 bg-gray-200 rounded w-16 mb-3" />
                 <div className="h-7 bg-gray-200 rounded w-28 mb-1" />
@@ -179,9 +179,11 @@ export default function DashboardPage() {
             <h3 className="text-lg font-bold text-teal-900 mb-4">
               Your Chinese Names
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex flex-wrap gap-4">
               {results.map((name, i) => (
-                <NameCard key={i} name={name} index={i} />
+                <div key={i} className="flex-1 min-w-[280px]">
+                  <NameCard name={name} index={i} />
+                </div>
               ))}
             </div>
           </div>
@@ -204,7 +206,7 @@ export default function DashboardPage() {
                       })}
                     </span>
                   </summary>
-                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="flex flex-wrap gap-3">
                     {(entry.results || []).map((name: NameData, i: number) => (
                       <div key={i} className="text-sm">
                         <p className="font-bold text-teal-800">{name.chineseName}</p>

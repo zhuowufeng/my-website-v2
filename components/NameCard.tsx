@@ -25,23 +25,23 @@ export default function NameCard({ name, index }: NameCardProps) {
       {/* Decorative top accent */}
       <div className="h-1.5 bg-gradient-to-r from-teal-600 via-amber-500 to-teal-600" />
 
-      <div className="p-5">
+      <div className="flex flex-col gap-1.5 p-5">
         {/* Option number */}
-        <div className="text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">
+        <div className="text-xs font-medium text-gray-400 uppercase tracking-wider">
           Option {index + 1}
         </div>
 
         {/* Chinese name */}
-        <h3 className="text-2xl font-bold text-teal-900 mb-0.5 tracking-wider">
+        <h3 className="text-2xl font-bold text-teal-900 tracking-wider">
           {name.chineseName}
         </h3>
 
         {/* Pinyin */}
-        <p className="text-sm text-gray-500 italic mb-2">{name.pinyin}</p>
+        <p className="text-sm text-gray-500 italic">{name.pinyin}</p>
 
         {/* Nickname */}
         {name.nickname && (
-          <div className="flex items-center gap-1.5 mb-3">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-medium">
               小名
             </span>
@@ -51,22 +51,22 @@ export default function NameCard({ name, index }: NameCardProps) {
         )}
 
         {/* Pronounce full name button */}
-        <div className="mb-3">
+        <div>
           <PronounceButton name={name.chineseName} pinyin={name.pinyin} />
         </div>
 
         {/* Divider */}
-        <div className="border-t border-teal-50 my-3" />
+        <div className="border-t border-teal-50 my-1" />
 
         {/* Meanings */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-1">
           <div>
             <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Meaning</span>
-            <p className="text-sm text-gray-700 mt-0.5 leading-relaxed">{name.meaningEn}</p>
+            <p className="text-sm text-gray-700 leading-relaxed">{name.meaningEn}</p>
           </div>
           <div>
             <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">寓意</span>
-            <p className="text-sm text-gray-600 mt-0.5 leading-relaxed">{name.meaningCn}</p>
+            <p className="text-sm text-gray-600 leading-relaxed">{name.meaningCn}</p>
           </div>
         </div>
       </div>

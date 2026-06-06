@@ -121,22 +121,22 @@ export default function LandingPage() {
           <h2 className="text-2xl font-bold text-teal-900 text-center mb-10">
             How It Works
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="text-center p-6">
+          <div className="flex flex-wrap gap-6">
+            <div className="flex-1 min-w-[250px] text-center p-6">
               <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">✏️</span>
               </div>
               <h3 className="font-bold text-teal-800 mb-2">1. Enter Your Name</h3>
               <p className="text-sm text-gray-500">Type your English name and choose your gender preference.</p>
             </div>
-            <div className="text-center p-6">
+            <div className="flex-1 min-w-[250px] text-center p-6">
               <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">🔮</span>
               </div>
               <h3 className="font-bold text-teal-800 mb-2">2. AI Generates</h3>
               <p className="text-sm text-gray-500">Our AI creates 3 unique Chinese names with beautiful meanings.</p>
             </div>
-            <div className="text-center p-6">
+            <div className="flex-1 min-w-[250px] text-center p-6">
               <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">🎉</span>
               </div>
