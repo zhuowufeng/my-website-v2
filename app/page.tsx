@@ -30,7 +30,13 @@ export default function LandingPage() {
           <span className="text-xl font-bold">Sinmoniker</span>
           <span className="text-teal-300 text-xs">中文名生成器</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/writing-tool"
+            className="text-teal-200 hover:text-white text-sm hidden sm:inline transition-colors"
+          >
+            ✍️ AI文章助手
+          </Link>
           <Link
             href="/login"
             className="px-5 py-2 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 
@@ -85,6 +91,27 @@ export default function LandingPage() {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* AI Writing Tool Promo */}
+      <section className="bg-gradient-to-r from-teal-50 to-amber-50 px-6 py-12 border-t border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-3xl mb-2 block">✍️</span>
+          <h2 className="text-2xl font-bold text-teal-900 mb-3">
+            新功能：AI文章助手
+          </h2>
+          <p className="text-gray-600 mb-4">
+            输入主题，AI自动生成博客文章、小红书文案、SEO内容、产品介绍。
+            写网站内容再也不用愁。
+          </p>
+          <Link
+            href="/writing-tool"
+            className="inline-block px-6 py-3 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 
+              text-white font-medium rounded-lg transition-colors shadow-md"
+          >
+            免费使用 →
+          </Link>
         </div>
       </section>
 
