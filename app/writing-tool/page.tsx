@@ -342,21 +342,22 @@ export default function WritingToolPage() {
   return (
     <div className="flex-1 flex flex-col">
       {/* Nav */}
-      <nav className="bg-teal-900/95 backdrop-blur-sm text-white px-4 sm:px-6 py-3 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <span className="text-lg font-bold">✍️ 墨言</span>
-          <span className="text-teal-300 text-xs hidden sm:inline">AI文章助手</span>
+      <nav className="bg-teal-900/95 backdrop-blur-sm text-white px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-1">
+        <Link href="/" className="flex items-center gap-1.5 sm:gap-2 hover:opacity-80 transition-opacity min-w-0">
+          <span className="text-base sm:text-lg font-bold shrink-0">✍️ 墨言</span>
+          <span className="text-teal-300 text-[10px] sm:text-xs hidden sm:inline">AI文章助手</span>
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <button
             onClick={() => setShowHistory(!showHistory)}
-            className={`text-sm px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+            className={`text-xs sm:text-sm px-2 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer min-h-[36px] ${
               showHistory
                 ? 'bg-teal-700 text-white'
                 : 'text-teal-200 hover:text-white hover:bg-teal-800/50'
             }`}
           >
-            📚 历史记录
+            <span className="sm:hidden">📚</span>
+            <span className="hidden sm:inline">📚 历史记录</span>
             {history.length > 0 && !showHistory && (
               <span className="ml-1 text-xs bg-amber-500 text-white px-1.5 py-0.5 rounded-full">
                 {history.length}
@@ -364,8 +365,14 @@ export default function WritingToolPage() {
             )}
           </button>
           <Link
+            href="/blog"
+            className="text-teal-200 hover:text-white text-xs sm:text-sm transition-colors hidden sm:inline"
+          >
+            📖 博客
+          </Link>
+          <Link
             href="/"
-            className="text-teal-200 hover:text-white text-sm transition-colors"
+            className="text-teal-200 hover:text-white text-xs sm:text-sm transition-colors hidden sm:inline"
           >
             ← 返回首页
           </Link>
@@ -373,14 +380,29 @@ export default function WritingToolPage() {
       </nav>
 
       <div className="flex-1 flex">
-        {/* History Sidebar */}
+        {/* History Sidebar — mobile: full-screen overlay, desktop: side panel */}
         {showHistory && (
-          <aside className="w-72 sm:w-80 bg-white border-r border-gray-200 flex flex-col shrink-0">
-            <div className="px-4 py-3 border-b border-gray-100">
-              <h2 className="text-sm font-bold text-gray-800">📚 历史文章</h2>
-              <p className="text-xs text-gray-400 mt-0.5">
-                {history.length > 0 ? `共 ${history.length} 篇` : '还没有文章'}
-              </p>
+          <>
+            {/* Mobile backdrop */}
+            <div
+              className="fixed inset-0 z-40 bg-black/30 md:hidden"
+              onClick={() => setShowHistory(false)}
+            />
+            <aside className="fixed inset-y-0 left-0 z-50 w-[85vw] max-w-sm bg-white md:relative md:w-80 md:inset-auto md:border-r md:border-gray-200 flex flex-col shadow-xl md:shadow-none animate-slide-in-right">
+            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-bold text-teal-900">📚 历史文章</h2>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {history.length > 0 ? `共 ${history.length} 篇` : '还没有文章'}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowHistory(false)}
+                className="md:hidden p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                aria-label="关闭侧边栏"
+              >
+                ✕
+              </button>
             </div>
             <div className="flex-1 overflow-y-auto">
               {historyLoading && (
@@ -400,6 +422,8 @@ export default function WritingToolPage() {
                   onClick={() => {
                     setViewingArticle(article);
                     viewHistoryArticle(article);
+                    // Close sidebar on mobile after selecting an article
+                    if (window.innerWidth < 768) setShowHistory(false);
                   }}
                 >
                   <div className="flex items-start justify-between">
@@ -432,6 +456,7 @@ export default function WritingToolPage() {
               ))}
             </div>
           </aside>
+          </>
         )}
 
         {/* Main Content */}
@@ -442,13 +467,13 @@ export default function WritingToolPage() {
               <h1 className="text-3xl sm:text-4xl font-bold text-teal-900 mb-2">
                 AI文章助手
               </h1>
-              <p className="text-gray-600 text-sm sm:text-base">
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                 输入主题，AI帮你写文章。博客、小红书、SEO、产品介绍，一键生成
               </p>
             </div>
 
             {/* Input Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+            <div className="bg-white rounded-xl border border-teal-100 shadow-sm p-4 sm:p-6 mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 输入文章主题
               </label>
@@ -456,7 +481,7 @@ export default function WritingToolPage() {
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder={TYPE_PLACEHOLDERS[articleType]}
-                className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition resize-none"
+                className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition resize-none bg-white"
                 rows={2}
                 maxLength={500}
                 disabled={isGenerating}
@@ -466,16 +491,16 @@ export default function WritingToolPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   文章类型
                 </label>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {(Object.entries(TYPE_LABELS) as [ArticleType, string][]).map(([key, label]) => (
                     <button
                       key={key}
                       onClick={() => setArticleType(key)}
                       disabled={isGenerating}
-                      className={`flex-1 min-w-[120px] px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                      className={`px-2 sm:px-3 py-2.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-150 cursor-pointer min-h-[44px] ${
                         articleType === key
                           ? 'bg-teal-600 text-white shadow-sm'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-[0.97]'
                       } disabled:opacity-50`}
                     >
                       {label}
@@ -487,10 +512,10 @@ export default function WritingToolPage() {
               <button
                 onClick={handleGenerate}
                 disabled={!topic.trim() || isGenerating}
-                className={`mt-4 w-full py-3 rounded-xl text-white font-medium text-base transition-all cursor-pointer ${
+                className={`mt-4 w-full py-3 rounded-xl text-white font-medium text-base transition-all duration-150 ease-out cursor-pointer ${
                   !topic.trim() || isGenerating
                     ? 'bg-gray-300 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-teal-600 to-amber-600 hover:from-teal-700 hover:to-amber-700 active:scale-[0.98] shadow-md'
+                    : 'bg-gradient-to-r from-teal-600 to-amber-600 hover:from-teal-700 hover:to-amber-700 active:scale-[0.98] shadow-md hover:shadow-lg'
                 }`}
               >
                 {isGenerating ? (
@@ -508,12 +533,12 @@ export default function WritingToolPage() {
 
               {/* Save Status */}
               {saveStatus === 'saving' && (
-                <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-600 text-center">
-                  💾 正在保存...
+                <div className="mt-2 sm:mt-3 p-2 bg-blue-50 border border-blue-200 rounded-lg text-xs sm:text-sm text-blue-600 text-center animate-fade-in">
+                  <span className="inline-block animate-spin mr-1">⏳</span> 正在保存...
                 </div>
               )}
               {saveStatus === 'saved' && (
-                <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700 text-center">
+                <div className="mt-2 sm:mt-3 p-2 bg-green-50 border border-green-200 rounded-lg text-xs sm:text-sm text-green-700 text-center animate-scale-in">
                   ✅ 已保存到历史记录
                 </div>
               )}
@@ -527,12 +552,12 @@ export default function WritingToolPage() {
 
             {/* Output Section */}
             {output && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3 bg-gray-50 border-b border-gray-200">
-                  <h2 className="text-sm font-medium text-gray-700">
+              <div className="bg-white rounded-xl border border-teal-100 shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 bg-gray-50 border-b border-gray-200 gap-1">
+                  <h2 className="text-xs sm:text-sm font-medium text-gray-700">
                     {viewingArticle ? '📂 历史文章' : '✨ 生成结果'}
                   </h2>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5 sm:gap-2">
                     {!isGenerating && (
                       <>
                         <button
@@ -545,16 +570,16 @@ export default function WritingToolPage() {
                               handleGenerate();
                             }
                           }}
-                          className="px-3 py-1.5 text-xs font-medium bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors cursor-pointer"
+                          className="bg-gray-100 hover:bg-gray-200 active:scale-[0.97] text-gray-700 font-medium rounded-lg transition-all duration-150 cursor-pointer px-2 sm:px-3 py-2 sm:py-1.5 text-xs min-h-[36px] whitespace-nowrap"
                         >
                           {viewingArticle ? '← 写新文章' : '🔄 重新生成'}
                         </button>
                         <button
                           onClick={handleCopy}
-                          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
+                          className={`px-2 sm:px-3 py-2 sm:py-1.5 text-xs font-medium rounded-lg transition-all duration-150 cursor-pointer min-h-[36px] whitespace-nowrap ${
                             copied
                               ? 'bg-green-100 text-green-700'
-                              : 'bg-gray-200 hover:bg-gray-300'
+                              : 'bg-gray-100 hover:bg-gray-200 active:scale-[0.97] text-gray-700'
                           }`}
                         >
                           {copied ? '✅ 已复制' : '📋 复制'}
@@ -581,23 +606,23 @@ export default function WritingToolPage() {
 
             {/* Tips */}
             {!output && !isGenerating && (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 sm:p-4 text-xs sm:text-sm text-amber-800 animate-fade-in-up">
                 <strong>💡 使用小贴士：</strong>
                 <ul className="list-disc list-inside mt-2 space-y-1">
                   <li>输入越具体，生成的文章越精准</li>
                   <li>试试不同的文章类型，找到最适合你的格式</li>
-                  <li>满意就点「重新生成」，AI每次输出不同</li>
+                  <li>不满意就点「重新生成」，AI每次输出不同</li>
                   <li>生成的文字自动保存，随时在历史记录查看</li>
                 </ul>
               </div>
             )}
 
             {/* Ad */}
-            <div className="mt-6 p-3 bg-gradient-to-r from-gray-50 to-amber-50 border border-gray-200 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
+            <div className="mt-4 sm:mt-6 p-3 bg-gradient-to-r from-gray-50 to-amber-50 border border-gray-200 rounded-xl">
+              <div className="flex items-start sm:items-center justify-between gap-2 opacity-80 hover:opacity-100 transition-opacity duration-200">
+                <div className="flex-1 min-w-0">
                   <p className="text-xs text-gray-400 uppercase tracking-wider">—— 推广 ——</p>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1">
                     📢 需要高质量外链提升SEO排名？{' '}
                     <a
                       href="https://www.google.com/search?q=SEO+backlink+service"
@@ -609,13 +634,13 @@ export default function WritingToolPage() {
                     </a>
                   </p>
                 </div>
-                <span className="text-xs text-gray-300 ml-2">广告</span>
+                <span className="text-xs text-gray-300 shrink-0">广告</span>
               </div>
             </div>
 
             {/* Usage + Pro upsell */}
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+              <div className="bg-white rounded-xl border border-teal-100 shadow-sm p-4 text-center hover:shadow-md transition-shadow duration-200">
                 <p className="text-xs text-gray-400">今日免费额度</p>
                 <p className="text-2xl font-bold text-teal-700 mt-1">
                   {Math.max(0, DAILY_FREE_LIMIT - dailyUsage)}
@@ -623,7 +648,7 @@ export default function WritingToolPage() {
                 </p>
                 <p className="text-xs text-gray-500 mt-1">每日重置</p>
               </div>
-              <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl p-4 text-center text-white shadow-sm">
+              <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl p-4 text-center text-white shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5">
                 <p className="text-xs opacity-90">🚀 墨言 Pro</p>
                 <p className="text-sm font-bold mt-1">无限使用 · 更高质量</p>
                 <p className="text-xs opacity-80 mt-1">即将上线</p>
@@ -632,6 +657,11 @@ export default function WritingToolPage() {
           </div>
         </main>
       </div>
+
+      {/* Footer with internal links for SEO */}
+      <footer className="bg-teal-900 text-teal-300 text-[10px] sm:text-xs px-4 sm:px-6 py-3 sm:py-4 text-center">
+        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
+      </footer>
     </div>
   );
 }

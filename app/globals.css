@@ -1,8 +1,25 @@
 @import "tailwindcss";
 
+/*
+ * 🎨 Sinmoniker Design System
+ * ── Semantic color tokens ──
+ * Palette: Warm teal (#1a3a4a) + Amber (#d9823a) + Cream (#f5f0e8)
+ * Background: cream → Surface: white → Text: teal-900
+ */
+
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* ── Custom animations ── */
+  --animate-fade-in: fade-in 0.4s ease-out;
+  --animate-fade-in-up: fade-in-up 0.4s ease-out;
+  --animate-fade-in-up-delay-1: fade-in-up 0.4s ease-out 0.1s both;
+  --animate-fade-in-up-delay-2: fade-in-up 0.4s ease-out 0.2s both;
+  --animate-fade-in-up-delay-3: fade-in-up 0.4s ease-out 0.3s both;
+  --animate-slide-in-right: slide-in-right 0.3s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-scale-in: scale-in 0.2s ease-out;
+  --animate-shimmer: shimmer 2s infinite linear;
+  --animate-progress-bar: progress-bar 2s ease-out forwards;
+  /* ── Core palette (custom) ── */
   --color-teal-900: #1a3a4a;
   --color-teal-800: #1f4a5e;
   --color-teal-700: #265a72;
@@ -12,6 +29,7 @@
   --color-teal-300: #8ab8d0;
   --color-teal-100: #c8dce8;
   --color-teal-50: #e6f0f5;
+
   --color-amber-50: #fef3e7;
   --color-amber-100: #fde4cc;
   --color-amber-200: #fbd3a8;
@@ -21,18 +39,95 @@
   --color-amber-600: #c9753e;
   --color-amber-700: #b05f2e;
   --color-amber-800: #944a20;
+
   --color-cream: #f5f0e8;
+
+  /* ── Semantic tokens → creates text-*, bg-*, border-* utility classes ── */
+  --color-background: var(--color-cream);
+  --color-foreground: var(--color-teal-900);
+  --color-surface: #ffffff;
+  --color-accent: var(--color-amber-600);
+  --color-brand: var(--color-teal-600);
+
+  /* Text hierarchy */
+  --color-text-primary: var(--color-teal-900);
+  --color-text-body: #475569;     /* gray-600 */
+  --color-text-muted: #94a3b8;    /* gray-400 */
+  --color-text-link: var(--color-teal-600);
+
+  /* Borders */
+  --color-border: #e2e8f0;        /* gray-200 */
+  --color-border-light: var(--color-teal-50);
+  --color-border-accent: var(--color-amber-200);
+
+  /* Surfaces */
+  --color-surface-muted: var(--color-cream);
+  --color-surface-highlight: var(--color-amber-50);
+  --color-surface-brand: var(--color-teal-50);
+
+  /* Component tokens */
+  --color-card-bg: #ffffff;
+  --color-card-border: var(--color-teal-100);
+  --color-input-bg: #ffffff;
+  --color-input-border: #d1d5db;  /* gray-300 */
+
+  /* Fonts */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 :root {
-  --background: #f5f0e8;
-  --foreground: #1a3a4a;
+  --background: var(--color-cream);
+  --foreground: var(--color-teal-900);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* ── Keyframes for custom animations ── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes progress-bar {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* ── Respect reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

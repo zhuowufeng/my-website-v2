@@ -37,8 +37,8 @@ export default function PronounceButton({ name, pinyin }: PronounceButtonProps) 
       disabled={isPlaying}
       title={pinyin ? `Listen to pronunciation (${pinyin})` : 'Listen to pronunciation'}
       className="inline-flex items-center gap-1 px-2 py-1 text-sm rounded-full 
-        bg-amber-100 hover:bg-amber-200 active:bg-amber-300 
-        text-amber-800 transition-colors disabled:opacity-50 cursor-pointer"
+        bg-amber-100 hover:bg-amber-200 active:bg-amber-300 active:scale-[0.95]
+        text-amber-800 transition-all duration-150 disabled:opacity-50 cursor-pointer"
     >
       {isPlaying ? (
         <svg className="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
