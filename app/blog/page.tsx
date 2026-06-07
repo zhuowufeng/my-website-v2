@@ -1,6 +1,10 @@
+// /blog — 博客列表页（动态从数据库读取）
+
 import type { Metadata } from "next";
 import Link from "next/link";
 import JsonLd, { breadcrumbLd, siteNavigationLd } from "@/components/JsonLd";
+import { getPublishedPosts, getCategories } from "@/models/BlogPost.js";
+import { createTable } from "@/models/BlogPost.js";
 
 export const metadata: Metadata = {
   title: "博客 | AI写作技巧 & SEO内容攻略 | Sinmoniker",
@@ -32,41 +36,15 @@ export const metadata: Metadata = {
   },
 };
 
-const blogPosts = [
-  {
-    slug: "ai-writing-tips",
-    title: "AI写作入门：如何用AI工具快速写出高质量文章",
-    description:
-      "掌握AI写作的核心技巧，从Prompt工程到文章结构优化，让你用AI工具写出比人工更好的内容。适合博客作者、自媒体运营和SEO内容创作者。",
-    date: "2026-06-07",
-    category: "AI写作教程",
-    readTime: "8分钟",
-    tags: ["AI写作", "Prompt工程", "写作技巧"],
-  },
-  {
-    slug: "xiaohongshu-copywriting",
-    title: "小红书文案生成指南：AI帮你写出爆款笔记",
-    description:
-      "小红书笔记怎么写才有人看？从选题到标题，从正文到标签，手把手教你用AI生成高互动率的小红书文案。免费AI工具一键生成。",
-    date: "2026-06-07",
-    category: "小红书运营",
-    readTime: "6分钟",
-    tags: ["小红书", "文案生成", "爆款笔记", "AI工具"],
-  },
-  {
-    slug: "seo-content-writing",
-    title: "SEO文章写作完全指南：让搜索引擎爱上你的内容",
-    description:
-      "SEO文章怎么写才能排名靠前？从关键词布局到标题优化，从内链策略到内容结构，系统学习搜索引擎优化的写作方法。支持免费AI生成SEO文章。",
-    date: "2026-06-07",
-    category: "SEO优化",
-    readTime: "10分钟",
-    tags: ["SEO", "搜索引擎优化", "内容策略", "关键词研究"],
-  },
-];
+export const dynamic = 'force-dynamic';
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  // Ensure table exists
+  await createTable().catch(() => {});
+
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://sinmoniker.com";
+  const posts = await getPublishedPosts({ limit: 50, offset: 0 });
+  const categories = await getCategories().catch(() => []);
 
   return (
     <>
@@ -84,12 +62,20 @@ export default function BlogPage() {
           <Link href="/" className="text-lg sm:text-xl font-bold hover:text-amber-300 transition-colors">
             Sinmoniker
           </Link>
-          <Link
-            href="/writing-tool"
-            className="text-teal-200 hover:text-white text-sm transition-colors"
-          >
-            ✍️ 免费写作 →
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/writing-tool"
+              className="text-teal-200 hover:text-white text-sm transition-colors"
+            >
+              ✍️ 免费写作 →
+            </Link>
+            <Link
+              href="/blog/admin"
+              className="text-amber-300 hover:text-amber-200 text-xs transition-colors"
+            >
+              管理
+            </Link>
+          </div>
         </nav>
 
         {/* Header */}
@@ -103,42 +89,70 @@ export default function BlogPage() {
           </p>
         </header>
 
+        {/* Categories */}
+        {categories.length > 0 && (
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 mb-8">
+            <div className="flex flex-wrap gap-2 justify-center">
+              {categories.map(cat => (
+                <span
+                  key={cat.category}
+                  className="text-xs bg-teal-50 text-teal-700 px-3 py-1.5 rounded-full border border-teal-100"
+                >
+                  {cat.category} ({cat.count})
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Blog Posts */}
         <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
-          <div className="grid gap-6 sm:gap-8">
-            {blogPosts.map((post) => (
-              <article
-                key={post.slug}
-                className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <Link href={`/blog/${post.slug}`} className="block p-5 sm:p-8">
-                  <div className="flex items-center gap-2 sm:gap-3 mb-3 text-xs sm:text-sm text-gray-500">
-                    <span className="bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full font-medium">
-                      {post.category}
-                    </span>
-                    <span>{post.date}</span>
-                    <span>· {post.readTime}</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-teal-900 mb-3 hover:text-amber-600 transition-colors">
-                    {post.title}
-                  </h2>
-                  <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4">
-                    {post.description}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {post.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
-                      >
-                        #{tag}
+          {posts.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-gray-400 text-lg mb-2">📝 暂无文章</p>
+              <p className="text-gray-400 text-sm">新文章正在路上，敬请期待</p>
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:gap-8">
+              {posts.map((post) => (
+                <article
+                  key={post.id}
+                  className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <Link href={`/blog/${post.slug}`} className="block p-5 sm:p-8">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-3 text-xs sm:text-sm text-gray-500">
+                      <span className="bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full font-medium">
+                        {post.category || '未分类'}
                       </span>
-                    ))}
-                  </div>
-                </Link>
-              </article>
-            ))}
-          </div>
+                      <span>
+                        {post.published_at
+                          ? new Date(post.published_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })
+                          : '刚刚发布'}
+                      </span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-teal-900 mb-3 hover:text-amber-600 transition-colors">
+                      {post.title}
+                    </h2>
+                    <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4">
+                      {post.description || '点击阅读全文'}
+                    </p>
+                    {post.tags && post.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {post.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </Link>
+                </article>
+              ))}
+            </div>
+          )}
 
           {/* CTA */}
           <div className="mt-12 text-center bg-gradient-to-r from-teal-50 to-amber-50 rounded-xl border border-teal-100 p-6 sm:p-8">
@@ -159,7 +173,7 @@ export default function BlogPage() {
 
         {/* Footer */}
         <footer className="bg-teal-900 text-teal-300 text-xs px-4 sm:px-6 py-4 text-center">
-          <p>© 2026 Sinmoniker — AI写作 & 中文名生成</p>
+          <p>© 2026 Sinmoniker — AI写作 & 中文名生成 & SEO工具</p>
         </footer>
       </div>
     </>
