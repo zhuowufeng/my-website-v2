@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 
 interface SubscriptionStatus {
@@ -78,6 +78,8 @@ export default function PricingPage() {
   const [userId, setUserId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(false);
+  const [managingPortal, setManagingPortal] = useState(false);
+  const [stripeReady, setStripeReady] = useState(true);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
 
@@ -96,6 +98,23 @@ export default function PricingPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    // 检查 URL 参数（Stripe checkout 回调）
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') === 'success') {
+      showMessage('🎉 支付成功！欢迎加入 Pro！', 'success');
+      // 刷新订阅状态
+      fetch('/api/subscription/check')
+        .then(r => r.json())
+        .then(data => setSubscription(data));
+    } else if (params.get('checkout') === 'cancel') {
+      showMessage('支付已取消，随时可以重新升级', 'info');
+    } else if (params.get('checkout') === 'error') {
+      showMessage('支付遇到问题，请稍后再试', 'error');
+    } else if (params.get('stripe_pending') === 'true') {
+      setStripeReady(false);
+      showMessage('Stripe 支付正在配置中，请稍后再试', 'info');
+    }
   }, []);
 
   const showMessage = (text: string, type: 'success' | 'error' | 'info') => {
@@ -104,25 +123,43 @@ export default function PricingPage() {
     setTimeout(() => setMessage(''), 5000);
   };
 
-  const handleUpgrade = async (plan: string) => {
+  const handleUpgrade = useCallback(async (plan: string) => {
     if (!userId) {
       showMessage('请先登录后再升级', 'info');
       return;
     }
-    if (!subscription) return;
 
     setUpgrading(true);
+
     try {
-      const days = plan === 'yearly' ? 365 : 30;
-      const res = await fetch('/api/subscription/upgrade', {
+      // 先尝试 Stripe Checkout（真实支付）
+      const res = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, plan: 'pro', days }),
+        body: JSON.stringify({ user_id: userId, plan }),
       });
+
       const data = await res.json();
-      if (data.success) {
-        showMessage('🎉 升级成功！现已享受 Pro 全部功能', 'success');
-        setSubscription(prev => prev ? { ...prev, subscribed: true, plan: 'pro' } : prev);
+
+      if (data.url) {
+        // Stripe 已配置 — 跳转到 Stripe Checkout 页面
+        window.location.href = data.url;
+      } else if (data.fallbackUrl) {
+        // Stripe 未配置 — 回退到直接升级（开发/测试模式）
+        console.warn('[pricing] Stripe not configured, using direct upgrade fallback');
+        const days = plan === 'yearly' ? 365 : 30;
+        const fallbackRes = await fetch('/api/subscription/upgrade', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, plan: 'pro', days }),
+        });
+        const fallbackData = await fallbackRes.json();
+        if (fallbackData.success) {
+          showMessage('🎉 升级成功！(开发模式)', 'success');
+          setSubscription(prev => prev ? { ...prev, subscribed: true, plan: 'pro' } : prev);
+        } else {
+          showMessage(fallbackData.error || '升级失败', 'error');
+        }
       } else {
         showMessage(data.error || '升级失败', 'error');
       }
@@ -131,7 +168,29 @@ export default function PricingPage() {
     } finally {
       setUpgrading(false);
     }
-  };
+  }, [userId]);
+
+  const handleManageSubscription = useCallback(async () => {
+    if (!userId) return;
+    setManagingPortal(true);
+    try {
+      const res = await fetch('/api/stripe/portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        showMessage(data.error || '无法打开管理页面', 'error');
+      }
+    } catch (err: any) {
+      showMessage('网络错误: ' + err.message, 'error');
+    } finally {
+      setManagingPortal(false);
+    }
+  }, [userId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900">
@@ -231,10 +290,11 @@ export default function PricingPage() {
               {/* CTA */}
               {(subscription?.subscribed && plan.name !== 'Free') ? (
                 <button
-                  disabled
-                  className="w-full py-3 bg-green-700/50 text-green-300 rounded-xl text-sm font-medium mb-6 cursor-not-allowed"
+                  onClick={handleManageSubscription}
+                  disabled={managingPortal}
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium mb-6 transition disabled:opacity-50"
                 >
-                  ✅ 已订阅
+                  {managingPortal ? '打开中...' : '🔧 管理订阅'}
                 </button>
               ) : plan.name === 'Free' ? (
                 <div className="w-full py-3 bg-gray-700/50 text-gray-400 rounded-xl text-sm font-medium mb-6 text-center">
@@ -273,7 +333,7 @@ export default function PricingPage() {
               { q: '升级后能用哪些功能？', a: 'Pro 用户可以使用所有工具：姓名生成、SEO诊断、批量分析、定时诊断、数据看板等，无次数限制。' },
               { q: '可以随时取消吗？', a: '月付/年付均可随时取消。取消后续期不会自动续费，但已付费期间功能不受影响。' },
               { q: '免费版能用多久？', a: '免费版永远可用，只是每天有次数限制（每日重置）。' },
-              { q: '支持哪些支付方式？', a: '支持信用卡、PayPal。年付享受 33% 折扣。' },
+              { q: '支持哪些支付方式？', a: '支持信用卡（Visa/MasterCard/Amex）借记卡等。年付享受 33% 折扣。支付由 Stripe 安全处理。' },
             ].map((faq, idx) => (
               <details key={idx} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden group">
                 <summary className="px-5 py-3.5 text-white font-medium cursor-pointer hover:bg-white/[0.02] transition flex items-center justify-between">

@@ -51,6 +51,12 @@ export default function LandingPage() {
             ✍️ AI文章助手
           </Link>
           <Link
+            href="/keyword-research"
+            className="text-teal-200 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
+          >
+            🔑 关键词挖掘
+          </Link>
+          <Link
             href="/blog"
             className="text-teal-200 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
           >
@@ -175,6 +181,26 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Keyword Research Promo */}
+      <section className="bg-gradient-to-r from-violet-50 to-blue-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-2xl sm:text-3xl mb-1 sm:mb-2 block">🔑</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-3">
+            新工具：关键词挖掘
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 px-2">
+            输入种子关键词，自动从百度+谷歌搜索建议挖掘相关长尾关键词。
+            免费SEO工具，帮你发现更多流量机会，找到用户真实搜索词。
+          </p>
+          <Link
+            href="/keyword-research"
+            className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
+          >
+            免费使用 →
+          </Link>
+        </div>
+      </section>
+
       {/* Title Generator Promo */}
       <section className="bg-gradient-to-r from-amber-50 to-teal-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
         <div className="max-w-3xl mx-auto text-center">
@@ -228,7 +254,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-teal-900 text-teal-300 text-[10px] sm:text-xs px-4 sm:px-6 py-3 sm:py-4 text-center">
-        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
+        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/keyword-research" className="hover:text-white">关键词挖掘</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
       </footer>
     </div>
   );

@@ -14,7 +14,8 @@ export async function createTable() {
         free_usage_today INT DEFAULT 0,
         subscription_type VARCHAR(50) DEFAULT 'free',
         subscription_expires_at TIMESTAMP,
-        extra_credits INT DEFAULT 0
+        extra_credits INT DEFAULT 0,
+        stripe_subscription_id VARCHAR(255)
       );
     `;
     await query(sql);
@@ -23,6 +24,7 @@ export async function createTable() {
     try {
       await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS identifier VARCHAR(255);`);
       await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS username VARCHAR(255);`);
+      await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id VARCHAR(255);`);
     } catch (_) {}
   }
 }
