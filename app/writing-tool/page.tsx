@@ -462,13 +462,23 @@ export default function WritingToolPage() {
         {/* Main Content */}
         <main className="flex-1 bg-gradient-to-b from-cream via-cream to-white min-w-0">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-            {/* Header */}
+            {/* Header: Clear UVP - Product Thinking */}
             <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-800 text-xs font-medium px-3 py-1 rounded-full mb-4">
+                <span className="text-sm">🎯</span>
+                <span>中文AI写作 · 小红书专属</span>
+              </div>
               <h1 className="text-3xl sm:text-4xl font-bold text-teal-900 mb-2">
-                AI文章助手
+                AI文章助手 — 墨言
               </h1>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                输入主题，AI帮你写文章。博客、小红书、SEO、产品介绍，一键生成
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-xl mx-auto">
+                不用花时间写，AI 10秒生成博客、小红书、SEO文章
+              </p>
+              <p className="text-xs sm:text-sm text-gray-400 mt-1">
+                输入主题 → 选择类型 → 秒速生成 → 复制出去用&nbsp;&nbsp;
+                <span className="inline-block bg-teal-50 text-teal-600 px-2 py-0.5 rounded text-[10px]">
+                  每日10次免费
+                </span>
               </p>
             </div>
 

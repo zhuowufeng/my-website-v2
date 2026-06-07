@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Analytics from "@/components/Analytics";
 import JsonLd, { siteNavigationLd } from "@/components/JsonLd";
+import ProductFeedback from "@/components/ProductFeedback";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -86,6 +87,7 @@ export default function RootLayout({
         <Analytics />
         <JsonLd data={siteNavigationLd()} />
         {children}
+        <ProductFeedback />
       </body>
     </html>
   );
