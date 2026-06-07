@@ -1,8 +1,12 @@
 // app/api/generate-article/route.ts
-// AI文章助手 — Streaming API Route
+// AI文章助手 — Streaming API Route (安全加固版)
+// 模块8 安全：限流 + API Key 安全 + 输入校验
 
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const API_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+import { checkGenerateRateLimit, rateLimitResponse } from '@/lib/rate-limiter';
+import logger from '@/lib/logger';
 
 const ARTICLE_TYPES: Record<string, { label: string; systemPrompt: string }> = {
   blog: {
@@ -104,25 +108,50 @@ Response format:
 };
 
 export async function POST(request: Request) {
-  try {
-    const { topic, articleType = 'blog', model = 'deepseek-chat' } = await request.json();
+  const startTime = Date.now();
+  const requestId = generateSimpleRequestId();
 
-    if (!topic || topic.trim().length < 2) {
+  try {
+    // ============ Rate Limiting ============
+    const rateCheck = checkGenerateRateLimit(request);
+    if (!rateCheck.allowed) {
+      logger.warn('generate', `Rate limit hit [${requestId}]`, {
+        remaining: rateCheck.remaining,
+      });
+      return rateLimitResponse(rateCheck.resetAt);
+    }
+
+    // ============ Validate API Key ============
+    if (!DEEPSEEK_API_KEY) {
+      logger.error('generate', 'DEEPSEEK_API_KEY not configured');
+      return Response.json({ error: 'AI服务未配置，请联系管理员' }, { status: 500 });
+    }
+
+    // ============ Parse & Validate Input ============
+    const body = await request.json();
+    const { topic, articleType = 'blog', model = 'deepseek-chat' } = body;
+
+    if (!topic || typeof topic !== 'string') {
+      return Response.json({ error: '请输入文章主题' }, { status: 400 });
+    }
+
+    const trimmedTopic = topic.trim();
+    if (trimmedTopic.length < 2) {
       return Response.json({ error: '请至少输入2个字符的主题' }, { status: 400 });
     }
 
-    if (!DEEPSEEK_API_KEY) {
-      return Response.json({ error: 'DEEPSEEK_API_KEY is not configured' }, { status: 500 });
-    }
-
-    if (topic.length > 500) {
+    if (trimmedTopic.length > 500) {
       return Response.json({ error: '主题太长，最多500个字符' }, { status: 400 });
     }
 
-    const typeConfig = ARTICLE_TYPES[articleType] || ARTICLE_TYPES.blog;
-    const userMessage = `请围绕这个主题写一篇文章:\n\n主题：${topic}\n\n文章类型：${typeConfig.label}`;
+    if (!ARTICLE_TYPES[articleType]) {
+      return Response.json({ error: '无效的文章类型' }, { status: 400 });
+    }
 
-    // Use streaming
+    const typeConfig = ARTICLE_TYPES[articleType];
+    const userMessage = `请围绕这个主题写一篇文章:\n\n主题：${trimmedTopic}\n\n文章类型：${typeConfig.label}`;
+
+    // ============ Call DeepSeek API ============
     const deepseekResponse = await fetch(API_URL, {
       method: 'POST',
       headers: {
@@ -143,14 +172,20 @@ export async function POST(request: Request) {
 
     if (!deepseekResponse.ok) {
       const errorText = await deepseekResponse.text();
+      logger.error('generate', `DeepSeek API error [${requestId}]`, undefined, {
+        status: deepseekResponse.status,
+        error: errorText.substring(0, 200),
+      });
       return Response.json(
-        { error: `DeepSeek API error (${deepseekResponse.status})` },
+        { error: 'AI服务暂时不可用，请稍后重试' },
         { status: 502 }
       );
     }
 
+    // ============ Stream Response ============
     const stream = new ReadableStream({
       async start(controller) {
+        let tokenCount = 0;
         try {
           const reader = deepseekResponse.body!.getReader();
           const decoder = new TextDecoder();
@@ -175,6 +210,7 @@ export async function POST(request: Request) {
                 const data = JSON.parse(dataStr);
                 const content = data.choices?.[0]?.delta?.content || '';
                 if (content) {
+                  tokenCount += content.length;
                   controller.enqueue(
                     new TextEncoder().encode(`data: ${JSON.stringify({ text: content })}\n\n`)
                   );
@@ -187,7 +223,16 @@ export async function POST(request: Request) {
 
           controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ done: true })}\n\n`));
           controller.close();
+
+          const duration = Date.now() - startTime;
+          logger.info('generate', `Generated article [${requestId}]`, {
+            topic: trimmedTopic.substring(0, 50),
+            type: articleType,
+            chars: tokenCount,
+            duration: `${duration}ms`,
+          });
         } catch (err) {
+          logger.error('generate', `Stream error [${requestId}]`, err instanceof Error ? err : String(err));
           controller.enqueue(
             new TextEncoder().encode(
               `data: ${JSON.stringify({ error: '生成过程出错，请重试' })}\n\n`
@@ -204,13 +249,19 @@ export async function POST(request: Request) {
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
         'X-Content-Type-Options': 'nosniff',
+        'X-Request-ID': requestId,
       },
     });
   } catch (error: any) {
-    console.error('Error generating article:', error);
+    const duration = Date.now() - startTime;
+    logger.error('generate', `Unhandled error [${requestId}]`, error, { duration });
     return Response.json(
-      { error: error.message || '生成失败，请稍后重试' },
+      { error: '生成失败，请稍后重试' },
       { status: 500 }
     );
   }
+}
+
+function generateSimpleRequestId(): string {
+  return `gen-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 }

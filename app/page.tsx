@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import AdBanner from '@/components/AdBanner';
 
 const EXAMPLE_NAMES = [
   { english: 'Michael', chinese: '李明华', nickname: '小华', meaning: 'Bright wisdom & outstanding talent' },
@@ -32,6 +33,18 @@ export default function LandingPage() {
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
+            href="/blog-generator"
+            className="text-teal-200 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
+          >
+            📝 博客生成
+          </Link>
+          <Link
+            href="/title-generator"
+            className="text-teal-200 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
+          >
+            🏷️ 标题生成
+          </Link>
+          <Link
             href="/writing-tool"
             className="text-teal-200 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
           >
@@ -43,12 +56,11 @@ export default function LandingPage() {
           >
             📖 博客
           </Link>
-          <Link
-            href="/login"
-            className="px-4 sm:px-5 py-2 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 
-              text-white text-xs sm:text-sm font-medium rounded-full transition-colors whitespace-nowrap"
-          >
+          <Link href="/login" className="px-3 sm:px-4 py-2 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white text-xs sm:text-sm font-medium rounded-full transition-colors whitespace-nowrap">
             Get Started
+          </Link>
+          <Link href="/pricing" className="px-3 sm:px-4 py-2 border border-amber-400/50 text-amber-300 hover:text-white hover:border-amber-300 text-xs sm:text-sm font-medium rounded-full transition-colors whitespace-nowrap">
+            ⭐ Pricing
           </Link>
         </div>
       </nav>
@@ -101,6 +113,9 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Ad Banner */}
+      <AdBanner position="bottom" source="seo" />
+
       {/* Blog Link */}
       <section className="bg-teal-50 px-4 sm:px-6 py-8 sm:py-10 border-t border-teal-100">
         <div className="max-w-3xl mx-auto text-center">
@@ -116,6 +131,26 @@ export default function LandingPage() {
             className="bg-teal-600 hover:bg-teal-700 active:bg-teal-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
           >
             浏览博客文章 →
+          </Link>
+        </div>
+      </section>
+
+      {/* Blog Generator Promo */}
+      <section className="bg-gradient-to-r from-teal-50 to-cyan-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-2xl sm:text-3xl mb-1 sm:mb-2 block">📝</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-teal-900 mb-2 sm:mb-3">
+            新功能：文序 — AI博客文章生成器
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 px-2">
+            输入主题，5种风格（教程/清单/分析/故事/观点）一键生成高质量博客文章。
+            内含SEO元数据、关键词优化，写完直接发布。
+          </p>
+          <Link
+            href="/blog-generator"
+            className="bg-teal-600 hover:bg-teal-700 active:bg-teal-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
+          >
+            免费使用 →
           </Link>
         </div>
       </section>
@@ -136,6 +171,25 @@ export default function LandingPage() {
             className="bg-teal-600 hover:bg-teal-700 active:bg-teal-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
           >
             免费使用 →
+          </Link>
+        </div>
+      </section>
+
+      {/* Title Generator Promo */}
+      <section className="bg-gradient-to-r from-amber-50 to-teal-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-2xl sm:text-3xl mb-1 sm:mb-2 block">🏷️</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-teal-900 mb-2 sm:mb-3">
+            新功能：AI标题生成器
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 px-2">
+            输入主题，AI自动生成高点击率标题。博客、小红书、SEO、营销，四种风格一键切换。
+          </p>
+          <Link
+            href="/title-generator"
+            className="bg-teal-600 hover:bg-teal-700 active:bg-teal-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
+          >
+            免费生成 →
           </Link>
         </div>
       </section>
@@ -174,7 +228,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-teal-900 text-teal-300 text-[10px] sm:text-xs px-4 sm:px-6 py-3 sm:py-4 text-center">
-        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
+        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
       </footer>
     </div>
   );

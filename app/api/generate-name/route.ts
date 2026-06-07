@@ -1,8 +1,17 @@
-// app/api/generate-name/route.ts
+/**
+ * /api/generate-name — 生成中文名
+ * 
+ * 变现阶段：
+ * - 免费用户：每天 5 次
+ * - Pro 用户：无限
+ */
+
 import { generateChineseNames } from '@/lib/deepseek';
 import { sanitizeInput, sanitizeOutput } from '@/lib/sanitize';
 import { createTable as createNameHistoryTable, addRecord } from '@/models/NameHistory';
-import { createTable as createUsersTable, getUsageCount, incrementFreeUsage } from '@/models/User';
+import { createTable as createUsersTable, getUsageCount, incrementFreeUsage, findUserById } from '@/models/User';
+
+const FREE_DAILY_LIMIT = 5;
 
 export async function POST(request: Request) {
   try {
@@ -25,10 +34,29 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Please enter a valid English name' }, { status: 400 });
     }
 
-    // Check usage limit
-    const usageCount = await getUsageCount(userId);
-    if (usageCount >= 50) {
-      return Response.json({ error: 'Daily limit reached (50 generations). Come back tomorrow!' }, { status: 429 });
+    // Check subscription status
+    const user = await findUserById(userId);
+    if (!user) {
+      return Response.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const now = new Date();
+    const isSubscribed =
+      user.subscription_type === 'pro' &&
+      user.subscription_expires_at &&
+      new Date(user.subscription_expires_at) > now;
+
+    if (!isSubscribed) {
+      // Free user: enforce daily limit
+      const usageCount = await getUsageCount(userId);
+      if (usageCount >= FREE_DAILY_LIMIT) {
+        return Response.json({
+          error: `Daily limit reached (${FREE_DAILY_LIMIT} generations). Upgrade to Pro for unlimited access!`,
+          limit_reached: true,
+          limit: FREE_DAILY_LIMIT,
+          usage: usageCount,
+        }, { status: 429 });
+      }
     }
 
     // Generate names
@@ -43,13 +71,14 @@ export async function POST(request: Request) {
         meaningEn: sanitizeOutput(name.meaningEn),
         pinyin: sanitizeOutput(name.pinyin),
       })),
+      subscribed: isSubscribed,
+      remaining: isSubscribed ? -1 : FREE_DAILY_LIMIT - (user.free_usage_today || 0),
     };
 
-    // Save to history
-    await addRecord(userId, sanitizedName, gender, safeResult.names);
-
-    // Increment usage count
-    await incrementFreeUsage(userId);
+    // Only count usage for free users
+    if (!isSubscribed) {
+      await incrementFreeUsage(userId);
+    }
 
     return Response.json(safeResult);
   } catch (error: any) {

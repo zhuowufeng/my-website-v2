@@ -20,24 +20,24 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://sinmoniker.com';
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Sinmoniker - Find Your Chinese Name & AI Writing Assistant",
+    default: "Sinmoniker - Find Your Chinese Name & SEO Tools",
     template: "%s | Sinmoniker",
   },
   description:
-    "Discover a beautiful Chinese name that reflects your personality. AI-powered name generator with meanings, pronunciation, and cute nicknames. Also features MoYan AI writing assistant.",
+    "Discover your Chinese name with AI. Free generator with meanings, pronunciation, and cute nicknames. Pro tools: SEO diagnosis, batch analysis, scheduling & analytics.",
   keywords: [
     "Chinese name generator",
-    "中文名生成",
-    "AI name generator",
     "Chinese name meaning",
+    "AI name generator",
+    "Sinmoniker",
+    "SEO diagnosis",
+    "SEO analytics",
     "AI writing assistant",
-    "AI文章助手",
-    "墨言",
   ],
   openGraph: {
-    title: "Sinmoniker - Find Your Chinese Name & AI Writing Assistant",
+    title: "Sinmoniker - Find Your Chinese Name & SEO Tools",
     description:
-      "Discover a beautiful Chinese name that reflects your personality. AI-powered name generator with meanings, pronunciation, and cute nicknames.",
+      "Discover your Chinese name with AI. Free generator with meanings, pronunciation, and cute nicknames. Pro tools: SEO diagnosis, batch analysis, scheduling & analytics.",
     type: "website",
     locale: "en_US",
     siteName: "Sinmoniker",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Sinmoniker - Find Your Chinese Name",
     description:
-      "Discover a beautiful Chinese name that reflects your personality. AI-powered name generator with meanings, pronunciation, and cute nicknames.",
+      "Discover your Chinese name with AI. Free generator with meanings, pronunciation, and cute nicknames.",
   },
   robots: {
     index: true,
@@ -68,7 +68,6 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    // Add your Google Search Console verification code here
     // google: "YOUR_VERIFICATION_CODE",
   },
 };
@@ -83,6 +82,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+      </head>
       <body className="min-h-full flex flex-col">
         <Analytics />
         <JsonLd data={siteNavigationLd()} />

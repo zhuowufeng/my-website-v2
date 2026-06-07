@@ -40,6 +40,12 @@ export async function findUserByIdentifier(identifier) {
   return result.rows[0];
 }
 
+export async function findUserById(id) {
+  const sql = `SELECT * FROM users WHERE id = $1;`;
+  const result = await query(sql, [id]);
+  return result.rows[0];
+}
+
 export async function verifyPassword(plainPassword, hashedPassword) {
   return bcrypt.compare(plainPassword, hashedPassword);
 }
