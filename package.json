@@ -2,10 +2,11 @@
   "name": "my-website",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node scripts/init-db.js && next start",
+    "start": "node scripts/init-db.js; next start",
     "db:init": "node scripts/init-db.js",
     "lint": "eslint"
   },

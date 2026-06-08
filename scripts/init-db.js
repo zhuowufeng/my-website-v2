@@ -5,7 +5,7 @@
 // NOTE: If DB is not available, we gracefully log a warning and exit cleanly
 // so the server can still start (some features just won't work without DB).
 
-import { query, getAvailableDbEnvVars, pool } from '../lib/db.js';
+import { query, getAvailableDbEnvVars } from '../lib/db.js';
 
 async function initDatabase() {
   console.log('=== Database Initialization ===');
