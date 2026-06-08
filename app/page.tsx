@@ -63,6 +63,12 @@ export default function LandingPage() {
             🔍 域名侦探
           </Link>
           <Link
+            href="/http-checker"
+            className="text-amber-300 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
+          >
+            🔬 HTTP检测
+          </Link>
+          <Link
             href="/blog"
             className="text-teal-200 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
           >
@@ -207,6 +213,26 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* HTTP Checker Promo */}
+      <section className="bg-gradient-to-r from-teal-50 to-indigo-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-2xl sm:text-3xl mb-1 sm:mb-2 block">🔬🌐</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-teal-900 mb-2 sm:mb-3">
+            新工具：HTTP Checker — HTTP/SSL 探测器
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 px-2">
+            输入网址，一键探测 HTTP 状态码、响应头、SSL 证书详情、重定向链路追踪。
+            不依赖浏览器，服务端直接探测，检查你的网站是否正常响应，SSL 证书还有多久过期。
+          </p>
+          <Link
+            href="/http-checker"
+            className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
+          >
+            免费检测 →
+          </Link>
+        </div>
+      </section>
+
       {/* DNS Detective Promo */}
       <section className="bg-gradient-to-r from-teal-50 to-amber-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
         <div className="max-w-3xl mx-auto text-center">
@@ -280,7 +306,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-teal-900 text-teal-300 text-[10px] sm:text-xs px-4 sm:px-6 py-3 sm:py-4 text-center">
-        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/keyword-research" className="hover:text-white">关键词挖掘</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/dns-detective" className="hover:text-white">域名侦探</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
+        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/keyword-research" className="hover:text-white">关键词挖掘</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/dns-detective" className="hover:text-white">域名侦探</Link> · <Link href="/http-checker" className="hover:text-white">HTTP检测</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
       </footer>
     </div>
   );
