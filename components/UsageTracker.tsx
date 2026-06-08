@@ -27,6 +27,7 @@ const FREE_LIMITS: Record<string, number> = {
   scheduler: 3,       // 定时任务
   article_gen: 3,     // 文章生成
   dashboard: 10,      // 数据看板
+  keyword_research: 10, // 关键词挖掘
 };
 
 interface UsageTrackerProps {

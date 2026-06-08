@@ -14,6 +14,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import AdBanner from '@/components/AdBanner';
 import ShareButton from '@/components/ShareButton';
+import UsageTracker, { canUse, useOne } from '@/components/UsageTracker';
 
 // ============ Types ============
 
@@ -315,6 +316,7 @@ export default function KeywordResearchPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [usageBlocked, setUsageBlocked] = useState(false);
 
   // Fetch history on mount
   useEffect(() => {
@@ -338,6 +340,13 @@ export default function KeywordResearchPage() {
     const kw = (searchKeyword || keyword).trim();
     if (!kw) return;
 
+    // 检查免费额度
+    if (!canUse('keyword_research')) {
+      setUsageBlocked(true);
+      return;
+    }
+    setUsageBlocked(false);
+
     setLoading(true);
     setError('');
     setSuccessMsg('');
@@ -357,6 +366,7 @@ export default function KeywordResearchPage() {
       const data = await res.json();
       setResult(data);
       setKeyword(kw);
+      useOne('keyword_research'); // 消费一次额度
       fetchHistory(); // refresh history
     } catch (err) {
       setError((err as Error).message);
@@ -411,6 +421,9 @@ export default function KeywordResearchPage() {
       <PageHeader />
 
       <main className="max-w-5xl mx-auto px-4 py-6 sm:px-6">
+        {/* Usage Tracker — 免费额度提示 */}
+        <UsageTracker action="keyword_research" />
+
         {/* Search Input */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -451,6 +464,13 @@ export default function KeywordResearchPage() {
               )}
             </button>
           </div>
+
+          {/* 额度用完提示 */}
+          {usageBlocked && (
+            <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+              今日免费次数已用完！升级 Pro 解锁无限关键词挖掘 ➜
+            </div>
+          )}
 
           {/* Error */}
           {error && (
