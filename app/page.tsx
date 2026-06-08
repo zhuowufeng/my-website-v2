@@ -253,6 +253,26 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Link Checker Promo */}
+      <section className="bg-gradient-to-r from-teal-50 to-rose-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-2xl sm:text-3xl mb-1 sm:mb-2 block">🔗🔍</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-teal-900 mb-2 sm:mb-3">
+            新工具：Link Checker — 链接健康检查器
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 px-2">
+            输入网址，自动抓取页面中所有链接，批量检测每个链接的 HTTP 状态。
+            快速发现 404 死链、重定向链、连接错误，SEO 优化必备工具。
+          </p>
+          <Link
+            href="/link-checker"
+            className="bg-rose-600 hover:bg-rose-700 active:bg-rose-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
+          >
+            免费检查 →
+          </Link>
+        </div>
+      </section>
+
       {/* Title Generator Promo */}
       <section className="bg-gradient-to-r from-amber-50 to-teal-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
         <div className="max-w-3xl mx-auto text-center">
