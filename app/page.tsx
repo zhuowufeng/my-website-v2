@@ -69,6 +69,18 @@ export default function LandingPage() {
             🔬 HTTP检测
           </Link>
           <Link
+            href="/page-speed"
+            className="text-green-300 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
+          >
+            ⚡ 速度检测
+          </Link>
+          <Link
+            href="/tech-analyzer"
+            className="text-violet-300 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
+          >
+            🔬 技术栈
+          </Link>
+          <Link
             href="/blog"
             className="text-teal-200 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
           >
@@ -253,6 +265,26 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Page Speed Promo */}
+      <section className="bg-gradient-to-r from-blue-50 to-cyan-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-2xl sm:text-3xl mb-1 sm:mb-2 block">⚡🌐</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-teal-900 mb-2 sm:mb-3">
+            新工具：Page Speed Analyzer — 页面速度 & 性能分析
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 px-2">
+            输入网址，一键分析页面加载速度。从 DNS 解析到 TLS 握手，从 TTFB 到内容下载，全面诊断性能瓶颈。
+            检测压缩状态、缓存策略、HTTP/2 支持、渲染阻塞资源，获取性能评分和优化建议。
+          </p>
+          <Link
+            href="/page-speed"
+            className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
+          >
+            免费分析 →
+          </Link>
+        </div>
+      </section>
+
       {/* Link Checker Promo */}
       <section className="bg-gradient-to-r from-teal-50 to-rose-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
         <div className="max-w-3xl mx-auto text-center">
@@ -269,6 +301,46 @@ export default function LandingPage() {
             className="bg-rose-600 hover:bg-rose-700 active:bg-rose-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
           >
             免费检查 →
+          </Link>
+        </div>
+      </section>
+
+      {/* Tech Stack Analyzer Promo */}
+      <section className="bg-gradient-to-r from-violet-50 to-purple-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-2xl sm:text-3xl mb-1 sm:mb-2 block">🔬🧱</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-violet-900 mb-2 sm:mb-3">
+            新工具：Tech Stack Analyzer — 网站技术栈分析器
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 px-2">
+            输入网址，一键识别网站使用的技术栈。服务器类型、CMS、前端框架、CDN、分析工具、JS 库——
+            30+ 检测规则全面覆盖。竞品分析、技术调研利器。
+          </p>
+          <Link
+            href="/tech-analyzer"
+            className="bg-violet-600 hover:bg-violet-700 active:bg-violet-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
+          >
+            免费分析 →
+          </Link>
+        </div>
+      </section>
+
+      {/* Social Preview Inspector Promo */}
+      <section className="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-2xl sm:text-3xl mb-1 sm:mb-2 block">📱🔍</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-purple-900 mb-2 sm:mb-3">
+            新工具：Social Preview Inspector — 社交分享预览检查器
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 px-2">
+            输入网址，一键查看网站在 Facebook、Twitter 等平台的分享效果。
+            检测 OG 标签、Twitter Cards、Meta 标签完整性，提供优化建议。内容营销必备工具。
+          </p>
+          <Link
+            href="/social-preview"
+            className="bg-purple-600 hover:bg-purple-700 active:bg-purple-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
+          >
+            免费检测 →
           </Link>
         </div>
       </section>
@@ -326,7 +398,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-teal-900 text-teal-300 text-[10px] sm:text-xs px-4 sm:px-6 py-3 sm:py-4 text-center">
-        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/keyword-research" className="hover:text-white">关键词挖掘</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/dns-detective" className="hover:text-white">域名侦探</Link> · <Link href="/http-checker" className="hover:text-white">HTTP检测</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
+        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/keyword-research" className="hover:text-white">关键词挖掘</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/page-speed" className="hover:text-white">速度检测</Link> · <Link href="/dns-detective" className="hover:text-white">域名侦探</Link> · <Link href="/http-checker" className="hover:text-white">HTTP检测</Link> · <Link href="/tech-analyzer" className="hover:text-white">技术栈分析</Link> · <Link href="/social-preview" className="hover:text-white">社交预览</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
       </footer>
     </div>
   );
