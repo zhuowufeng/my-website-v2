@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Analytics from "@/components/Analytics";
-import JsonLd, { siteNavigationLd } from "@/components/JsonLd";
+import JsonLd, { siteNavigationLd, organizationLd, webPageLd } from "@/components/JsonLd";
 import ProductFeedback from "@/components/ProductFeedback";
 
 const geistSans = Geist({
@@ -89,6 +89,14 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <Analytics />
         <JsonLd data={siteNavigationLd()} />
+        <JsonLd data={organizationLd()} />
+        <JsonLd data={webPageLd({
+          name: "Sinmoniker - Find Your Chinese Name & SEO Tools",
+          description: "Discover your Chinese name with AI. Free generator with meanings, pronunciation, and cute nicknames. Pro tools: SEO diagnosis, batch analysis, scheduling & analytics.",
+          url: BASE_URL,
+          datePublished: "2025-01-01",
+          dateModified: new Date().toISOString().split("T")[0],
+        })} />
         {children}
         <ProductFeedback />
       </body>

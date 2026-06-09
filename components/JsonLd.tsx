@@ -77,6 +77,145 @@ export function softwareAppLd({
   };
 }
 
+// --- Enhanced Schema Types for SEO ---
+
+export function organizationLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Sinmoniker",
+    alternateName: "墨言AI写作助手",
+    url: "https://sinmoniker.com",
+    logo: "https://sinmoniker.com/og-image.png",
+    description: "Discover your Chinese name with AI. Free tools for SEO diagnosis, keyword research, AI writing, and website analysis.",
+    foundingDate: "2025",
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      url: "https://sinmoniker.com"
+    },
+    sameAs: [
+      "https://sinmoniker.com/blog",
+      "https://sinmoniker.com/seo-diagnosis"
+    ]
+  };
+}
+
+export function faqPageLd(questions: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: questions.map((q) => ({
+      "@type": "Question",
+      name: q.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: q.answer,
+      },
+    })),
+  };
+}
+
+export function howToLd({
+  name,
+  description,
+  steps,
+  totalTime,
+}: {
+  name: string;
+  description: string;
+  steps: { name: string; text: string; url?: string }[];
+  totalTime?: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name,
+    description,
+    totalTime: totalTime || "PT2M",
+    step: steps.map((step, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: step.name,
+      text: step.text,
+      url: step.url,
+    })),
+  };
+}
+
+export function webPageLd({
+  name,
+  description,
+  url,
+  image,
+  datePublished,
+  dateModified,
+}: {
+  name: string;
+  description: string;
+  url: string;
+  image?: string;
+  datePublished?: string;
+  dateModified?: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name,
+    description,
+    url,
+    image: image || "https://sinmoniker.com/og-image.png",
+    datePublished: datePublished || new Date().toISOString().split("T")[0],
+    dateModified: dateModified || new Date().toISOString().split("T")[0],
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://sinmoniker.com" },
+      ],
+    },
+    about: {
+      "@type": "Thing",
+      name: "Sinmoniker - Chinese Name Generator & SEO Tools",
+    },
+  };
+}
+
+export function productLd({
+  name,
+  description,
+  url,
+  image,
+  brand = "Sinmoniker",
+  offers,
+}: {
+  name: string;
+  description: string;
+  url: string;
+  image?: string;
+  brand?: string;
+  offers?: { price: string; priceCurrency: string; availability?: string };
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name,
+    description,
+    url,
+    image: image || "https://sinmoniker.com/og-image.png",
+    brand: {
+      "@type": "Brand",
+      name: brand,
+    },
+    offers: {
+      "@type": "Offer",
+      price: offers?.price || "0",
+      priceCurrency: offers?.priceCurrency || "CNY",
+      availability: offers?.availability || "https://schema.org/InStock",
+      url,
+    },
+  };
+}
+
 export function blogPostLd({
   title,
   description,

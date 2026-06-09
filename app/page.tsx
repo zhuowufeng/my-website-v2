@@ -325,12 +325,32 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Content Analyzer Promo */}
+      <section className="bg-gradient-to-r from-emerald-50 to-teal-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-2xl sm:text-3xl mb-1 sm:mb-2 block">📄🔬</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-emerald-900 mb-2 sm:mb-3">
+            新工具：Content Analyzer — 网页内容结构分析器
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 px-2">
+            输入网址，一键分析网页内容质量：标题层级结构、字数统计、阅读时间、
+            关键词密度、图片Alt属性、内外链分布、可读性评分。SEO内容和写作优化必备工具。
+          </p>
+          <Link
+            href="/content-analyzer"
+            className="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
+          >
+            免费分析 →
+          </Link>
+        </div>
+      </section>
+
       {/* Social Preview Inspector Promo */}
       <section className="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
         <div className="max-w-3xl mx-auto text-center">
           <span className="text-2xl sm:text-3xl mb-1 sm:mb-2 block">📱🔍</span>
           <h2 className="text-xl sm:text-2xl font-bold text-purple-900 mb-2 sm:mb-3">
-            新工具：Social Preview Inspector — 社交分享预览检查器
+            Social Preview Inspector — 社交分享预览检查器
           </h2>
           <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 px-2">
             输入网址，一键查看网站在 Facebook、Twitter 等平台的分享效果。
@@ -398,7 +418,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-teal-900 text-teal-300 text-[10px] sm:text-xs px-4 sm:px-6 py-3 sm:py-4 text-center">
-        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/keyword-research" className="hover:text-white">关键词挖掘</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/page-speed" className="hover:text-white">速度检测</Link> · <Link href="/dns-detective" className="hover:text-white">域名侦探</Link> · <Link href="/http-checker" className="hover:text-white">HTTP检测</Link> · <Link href="/tech-analyzer" className="hover:text-white">技术栈分析</Link> · <Link href="/social-preview" className="hover:text-white">社交预览</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
+        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/keyword-research" className="hover:text-white">关键词挖掘</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/page-speed" className="hover:text-white">速度检测</Link> · <Link href="/dns-detective" className="hover:text-white">域名侦探</Link> · <Link href="/http-checker" className="hover:text-white">HTTP检测</Link> · <Link href="/tech-analyzer" className="hover:text-white">技术栈分析</Link> · <Link href="/social-preview" className="hover:text-white">社交预览</Link> · <Link href="/content-analyzer" className="hover:text-white">内容分析</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
       </footer>
     </div>
   );

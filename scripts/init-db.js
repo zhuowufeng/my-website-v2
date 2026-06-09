@@ -239,6 +239,31 @@ async function initDatabase() {
     console.error(`[init] ⚠️ Migration check skipped: ${migrateErr.message}`);
   }
 
+  // === Elasticsearch 索引初始化（模块14·高级） ===
+  try {
+    console.log('[init] Checking Elasticsearch configuration...');
+    if (process.env.ES_NODE) {
+      console.log('[init] ES_NODE configured, initializing ES indexes...');
+      // Defer ES initialization to avoid blocking the server start
+      import('../lib/es-indexer.js').then(async ({ rebuildAllIndexes }) => {
+        try {
+          await rebuildAllIndexes();
+        } catch (esErr) {
+          console.error(`[init] ⚠️ ES index initialization: ${esErr.message}`);
+          console.error('[init] ES features will be unavailable, PostgreSQL fallback active.');
+        }
+      }).catch(esImportErr => {
+        console.error(`[init] ⚠️ Failed to import ES module: ${esImportErr.message}`);
+      });
+      console.log('[init] ✅ ES initialization triggered (async)');
+    } else {
+      console.log('[init] ℹ️ ES_NODE not set — Elasticsearch features disabled');
+    }
+  } catch (esInitErr) {
+    // Don't crash — ES is optional
+    console.error(`[init] ⚠️ ES init check failed: ${esInitErr.message}`);
+  }
+
   console.log('[init] ✅ Database initialization complete');
 }
 
