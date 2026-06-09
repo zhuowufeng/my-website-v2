@@ -181,6 +181,23 @@ async function initDatabase() {
         'CREATE INDEX IF NOT EXISTS idx_page_views_created_at ON page_views(created_at);',
       ],
     },
+    {
+      name: 'competitor_analyses',
+      sql: `
+        CREATE TABLE IF NOT EXISTS competitor_analyses (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id),
+          urls JSONB NOT NULL,
+          result_json JSONB NOT NULL,
+          analyzed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `,
+      indexes: [
+        'CREATE INDEX IF NOT EXISTS idx_comp_analyses_user_id ON competitor_analyses(user_id);',
+        'CREATE INDEX IF NOT EXISTS idx_comp_analyses_analyzed_at ON competitor_analyses(analyzed_at);',
+        'CREATE INDEX IF NOT EXISTS idx_comp_analyses_user_date ON competitor_analyses(user_id, analyzed_at DESC);',
+      ],
+    },
   ];
 
   for (const table of tables) {
