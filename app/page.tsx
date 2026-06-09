@@ -81,10 +81,28 @@ export default function LandingPage() {
             🔬 技术栈
           </Link>
           <Link
+            href="/mobile-friendly"
+            className="text-pink-300 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
+          >
+            📱 移动友好
+          </Link>
+          <Link
+            href="/sitemap-inspector"
+            className="text-emerald-300 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
+          >
+            🗺️ 站点地图
+          </Link>
+          <Link
             href="/blog"
             className="text-teal-200 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
           >
             📖 博客
+          </Link>
+          <Link
+            href="/content-factory"
+            className="text-amber-300 hover:text-white text-xs sm:text-sm hidden sm:inline transition-colors"
+          >
+            🏭 内容工厂
           </Link>
           <Link href="/login" className="px-3 sm:px-4 py-2 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white text-xs sm:text-sm font-medium rounded-full transition-colors whitespace-nowrap">
             Get Started
@@ -345,6 +363,46 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Sitemap Inspector Promo */}
+      <section className="bg-gradient-to-r from-emerald-50 to-teal-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-2xl sm:text-3xl mb-1 sm:mb-2 block">🗺️</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-emerald-900 mb-2 sm:mb-3">
+            新工具：Sitemap Inspector — 站点地图检查器
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 px-2">
+            输入 Sitemap 地址，一键验证 XML 站点地图格式。检查 URL 完整性、检测协议合规问题、
+            支持多层 Sitemap Index 追踪。SEO 必备的站点地图诊断工具。
+          </p>
+          <Link
+            href="/sitemap-inspector"
+            className="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
+          >
+            免费检测 →
+          </Link>
+        </div>
+      </section>
+
+      {/* Mobile-Friendly Test Promo */}
+      <section className="bg-gradient-to-r from-pink-50 to-rose-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-2xl sm:text-3xl mb-1 sm:mb-2 block">📱🔍</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-rose-900 mb-2 sm:mb-3">
+            新工具：Mobile-Friendly Test — 移动友好检测
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 px-2">
+            输入网址，一键检测网站在手机上的表现。分析 Viewport 配置、字体大小、触摸目标、
+            响应式 CSS 等 15 项移动友好指标，给出综合评分和优化建议。Google 移动优先索引必备检查工具。
+          </p>
+          <Link
+            href="/mobile-friendly"
+            className="bg-rose-600 hover:bg-rose-700 active:bg-rose-800 active:scale-[0.97] text-white font-medium rounded-lg transition-all duration-150 ease-out shadow-sm cursor-pointer inline-block w-full sm:w-auto px-6 py-3 text-sm sm:text-base text-center"
+          >
+            免费检测 →
+          </Link>
+        </div>
+      </section>
+
       {/* Social Preview Inspector Promo */}
       <section className="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 sm:px-6 py-10 sm:py-12 border-t border-teal-100">
         <div className="max-w-3xl mx-auto text-center">
@@ -418,7 +476,11 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-teal-900 text-teal-300 text-[10px] sm:text-xs px-4 sm:px-6 py-3 sm:py-4 text-center">
+<<<<<<< Updated upstream
         <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/keyword-research" className="hover:text-white">关键词挖掘</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/page-speed" className="hover:text-white">速度检测</Link> · <Link href="/dns-detective" className="hover:text-white">域名侦探</Link> · <Link href="/http-checker" className="hover:text-white">HTTP检测</Link> · <Link href="/tech-analyzer" className="hover:text-white">技术栈分析</Link> · <Link href="/social-preview" className="hover:text-white">社交预览</Link> · <Link href="/content-analyzer" className="hover:text-white">内容分析</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
+=======
+        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/keyword-research" className="hover:text-white">关键词挖掘</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/page-speed" className="hover:text-white">速度检测</Link> · <Link href="/dns-detective" className="hover:text-white">域名侦探</Link> · <Link href="/http-checker" className="hover:text-white">HTTP检测</Link> · <Link href="/tech-analyzer" className="hover:text-white">技术栈分析</Link> · <Link href="/social-preview" className="hover:text-white">社交预览</Link> · <Link href="/content-analyzer" className="hover:text-white">内容分析</Link> · <Link href="/mobile-friendly" className="hover:text-white">移动友好</Link> · <Link href="/sitemap-inspector" className="hover:text-white">站点地图</Link> · <Link href="/link-checker" className="hover:text-white">链接检查</Link> · <Link href="/competitor-analyzer" className="hover:text-white">竞品分析</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
+>>>>>>> Stashed changes
       </footer>
     </div>
   );

@@ -20,6 +20,14 @@ export interface MissingTag {
   reason: string;
 }
 
+export interface JsonLdSchema {
+  type: string;
+  valid: boolean;
+  content: string;
+  fields: string[];
+  issues: string[];
+}
+
 export interface SocialPreviewResult {
   url: string;
   finalUrl: string;
@@ -41,6 +49,14 @@ export interface SocialPreviewResult {
     twitter: { title: string; description: string; image: string; url: string; };
   };
   errors: string[];
+  /** @deprecated Use structuredData instead */
+  jsonld?: JsonLdSchema[];
+  structuredData: {
+    schemas: JsonLdSchema[];
+    count: number;
+    types: string[];
+    score: 'good' | 'fair' | 'poor';
+  };
 }
 
 // ============ Helpers ============
@@ -57,6 +73,50 @@ function sanitizeUrl(input: string): string {
   } catch {
     return '';
   }
+}
+
+function extractJsonLd(html: string, baseUrl: string): JsonLdSchema[] {
+  const schemas: JsonLdSchema[] = [];
+  const pattern = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  let match;
+  while ((match = pattern.exec(html)) !== null) {
+    const raw = match[1].trim();
+    try {
+      const parsed = JSON.parse(raw);
+      // Handle @graph arrays
+      const items = parsed['@graph'] || [parsed];
+      for (const item of (Array.isArray(items) ? items : [items])) {
+        const type = item['@type'] || 'Unknown';
+        const fields = Object.keys(item).filter(k => !k.startsWith('@'));
+        const issues: string[] = [];
+        // Validate common required fields
+        if (!item.description && !item['@id']) {
+          issues.push('缺少 description 字段');
+        }
+        if (!item.name && type !== 'WebPage') {
+          issues.push('缺少 name 字段');
+        }
+        schemas.push({
+          type: Array.isArray(type) ? type.join(' / ') : type,
+          valid: issues.length === 0,
+          content: JSON.stringify(item, null, 2),
+          fields,
+          issues,
+        });
+      }
+    } catch {
+      // Invalid JSON, skip silently
+    }
+  }
+  return schemas;
+}
+
+function getStructuredDataScore(schemas: JsonLdSchema[]): 'good' | 'fair' | 'poor' {
+  if (schemas.length === 0) return 'poor';
+  const validCount = schemas.filter(s => s.valid).length;
+  if (schemas.length >= 2 && validCount === schemas.length) return 'good';
+  if (validCount > 0) return 'fair';
+  return 'poor';
 }
 
 function extractMetaTags(html: string): MetaTag[] {
@@ -304,8 +364,37 @@ export async function GET(request: NextRequest) {
     const ogComplete = requiredOg.every(t => tags.some(tg => tg.name === t));
     const twitterComplete = requiredTwitter.every(t => tags.some(tg => tg.name === t));
 
-    // Check missing
+    // Extract JSON-LD / Schema.org
+    const jsonld = extractJsonLd(html, new URL(finalUrl).origin);
+    const jsonldTypes = [...new Set(jsonld.map(s => s.type))];
+
+  // Check missing
     const missing = checkMissingTags(tags, html);
+
+    // Add JSON-LD checks to missing
+    if (jsonld.length === 0) {
+      missing.push({
+        tag: 'structured-data (JSON-LD)',
+        severity: 'info',
+        reason: '未检测到 JSON-LD / Schema.org 结构化数据，添加后可提升搜索引擎对页面内容的理解',
+      });
+    }
+    const hasArticle = jsonldTypes.some(t => t.includes('Article') || t.includes('BlogPosting'));
+    if (jsonld.length > 0 && !hasArticle) {
+      missing.push({
+        tag: 'Article/NewsArticle structured data',
+        severity: 'info',
+        reason: '未检测到 Article 类型的结构化数据，建议为内容页添加 Article Schema',
+      });
+    }
+    const invalidSchemas = jsonld.filter(s => !s.valid);
+    for (const s of invalidSchemas) {
+      missing.push({
+        tag: `Invalid JSON-LD (${s.type})`,
+        severity: 'warning',
+        reason: `${s.type} 结构化数据存在验证问题：${s.issues.join('; ')}`,
+      });
+    }
 
     // Build preview data
     const ogTitle = tags.find(t => t.name === 'og:title')?.content || pageTitle;
@@ -341,6 +430,13 @@ export async function GET(request: NextRequest) {
         twitter: { title: twitterTitle, description: twitterDesc, image: twitterImage, url: ogUrl },
       },
       errors,
+      jsonld,
+      structuredData: {
+        schemas: jsonld,
+        count: jsonld.length,
+        types: jsonldTypes,
+        score: getStructuredDataScore(jsonld),
+      },
     };
 
     return NextResponse.json(result);

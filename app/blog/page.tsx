@@ -3,13 +3,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import JsonLd, { breadcrumbLd, siteNavigationLd } from "@/components/JsonLd";
+import SeoSchema, { breadcrumbSchema, webPageSchema } from "@/components/SeoSchema";
 import { getPublishedPosts, getCategories } from "@/models/BlogPost.js";
 import { createTable } from "@/models/BlogPost.js";
 
-export const metadata: Metadata = {
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
   title: "博客 | AI写作技巧 & SEO内容攻略 | Sinmoniker",
   description:
     "免费学习AI写作技巧、小红书文案模板、SEO内容优化方法。用墨言AI写作助手，轻松生成优质中文内容。",
+  path: "/blog",
   keywords: [
     "AI写作技巧",
     "博客写作教程",
@@ -18,23 +22,9 @@ export const metadata: Metadata = {
     "AI内容创作",
     "免费写作工具",
   ],
-  openGraph: {
-    title: "博客 | AI写作技巧 & SEO内容攻略 | Sinmoniker",
-    description:
-      "免费学习AI写作技巧、小红书文案模板、SEO内容优化方法。",
-    type: "website",
-    locale: "zh_CN",
-    siteName: "Sinmoniker - 墨言",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "博客 | AI写作技巧 & SEO内容攻略",
-    description: "免费学习AI写作技巧、小红书文案模板、SEO内容优化方法。",
-  },
-  alternates: {
-    canonical: "/blog",
-  },
-};
+  ogType: "website",
+  locale: "zh_CN",
+});
 
 export const dynamic = 'force-dynamic';
 
@@ -55,6 +45,11 @@ export default async function BlogPage() {
           { name: "博客", url: `${baseUrl}/blog` },
         ])}
       />
+      {breadcrumbSchema([
+        { name: "首页", url: baseUrl },
+        { name: "博客", url: `${baseUrl}/blog` },
+      ])}
+      {webPageSchema({ name: "博客", description: "AI写作技巧 & SEO内容攻略", path: "/blog" })}
 
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         {/* Navigation */}
