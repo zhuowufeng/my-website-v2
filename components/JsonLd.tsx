@@ -101,6 +101,10 @@ export function organizationLd() {
   };
 }
 
+export function orgSchema() {
+  return <JsonLd data={organizationLd()} />;
+}
+
 export function faqPageLd(questions: { question: string; answer: string }[]) {
   return {
     "@context": "https://schema.org",

@@ -476,11 +476,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-teal-900 text-teal-300 text-[10px] sm:text-xs px-4 sm:px-6 py-3 sm:py-4 text-center">
-<<<<<<< Updated upstream
-        <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/keyword-research" className="hover:text-white">关键词挖掘</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/page-speed" className="hover:text-white">速度检测</Link> · <Link href="/dns-detective" className="hover:text-white">域名侦探</Link> · <Link href="/http-checker" className="hover:text-white">HTTP检测</Link> · <Link href="/tech-analyzer" className="hover:text-white">技术栈分析</Link> · <Link href="/social-preview" className="hover:text-white">社交预览</Link> · <Link href="/content-analyzer" className="hover:text-white">内容分析</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
-=======
         <p>© 2026 Sinmoniker — <Link href="/" className="hover:text-white">中文名生成</Link> · <Link href="/keyword-research" className="hover:text-white">关键词挖掘</Link> · <Link href="/title-generator" className="hover:text-white">AI标题生成</Link> · <Link href="/writing-tool" className="hover:text-white">AI写作助手</Link> · <Link href="/page-speed" className="hover:text-white">速度检测</Link> · <Link href="/dns-detective" className="hover:text-white">域名侦探</Link> · <Link href="/http-checker" className="hover:text-white">HTTP检测</Link> · <Link href="/tech-analyzer" className="hover:text-white">技术栈分析</Link> · <Link href="/social-preview" className="hover:text-white">社交预览</Link> · <Link href="/content-analyzer" className="hover:text-white">内容分析</Link> · <Link href="/mobile-friendly" className="hover:text-white">移动友好</Link> · <Link href="/sitemap-inspector" className="hover:text-white">站点地图</Link> · <Link href="/link-checker" className="hover:text-white">链接检查</Link> · <Link href="/competitor-analyzer" className="hover:text-white">竞品分析</Link> · <Link href="/blog" className="hover:text-white">博客</Link></p>
->>>>>>> Stashed changes
       </footer>
     </div>
   );

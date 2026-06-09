@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Analytics from "@/components/Analytics";
-import JsonLd, { siteNavigationLd, organizationLd, webPageLd } from "@/components/JsonLd";
-import SeoSchema, { orgSchema } from "@/components/SeoSchema";
+import JsonLd, { siteNavigationLd, organizationLd, webPageLd, orgSchema } from "@/components/JsonLd";
 import ProductFeedback from "@/components/ProductFeedback";
 
 const geistSans = Geist({
@@ -95,7 +94,7 @@ export default function RootLayout({
           name: "Sinmoniker - Find Your Chinese Name & SEO Tools",
           description: "Discover your Chinese name with AI. Free generator with meanings, pronunciation, and cute nicknames. Pro tools: SEO diagnosis, batch analysis, scheduling & analytics.",
           url: BASE_URL,
-          dateCreated: "2025-01-01",
+          datePublished: "2025-01-01",
           dateModified: new Date().toISOString().split("T")[0],
         })} />
         {orgSchema()}

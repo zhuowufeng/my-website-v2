@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import JsonLd, { breadcrumbLd, blogPostLd } from '@/components/JsonLd';
-import { articleSchema, breadcrumbSchema } from '@/components/SeoSchema';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -89,12 +88,6 @@ export default async function BlogPostPage({ params }: Props) {
           datePublished: post.published_at?.toISOString().split('T')[0] || post.created_at?.toISOString().split('T')[0],
         })}
       />
-      {articleSchema({
-        headline: post.title,
-        description: post.description || '',
-        path: `/blog/${post.slug}`,
-        datePublished: post.published_at?.toISOString().split('T')[0] || post.created_at?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
-      })}
 
       <article className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         {/* Navigation */}
